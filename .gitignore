@@ -1,0 +1,13 @@
+# User uploaded files
+public/uploads/employees/*
+!public/uploads/employees/.gitkeep
+public/uploads/documents/*
+!public/uploads/documents/.gitkeep
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log

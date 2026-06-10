@@ -1,0 +1,571 @@
+1) Konsep Besar Sistem
+
+Sistem dibagi menjadi 2 mesin utama yang saling terhubung:
+
+A. Mesin Kehadiran
+Mengelola:
+Finger print dummy
+Absensi via kamera HP
+Upload foto verifikasi lapangan
+Pengajuan tidak finger
+Pengajuan tidak hadir
+Pengajuan hourly unpaid leave
+Pengajuan paid leave
+Pengajuan sakit
+Notifikasi in-app
+Approval / verifikasi bertingkat
+Warning letter
+
+B. Mesin Payroll
+Mengambil hasil final dari kehadiran lalu menghitung:
+Gaji pokok
+Tunjangan
+Lembur
+Potongan terlambat
+Potongan unpaid leave
+Potongan hourly unpaid leave
+Potongan alpha
+Potongan sakit jika policy mengharuskan
+Bonus / allowance / adjustment
+Net salary
+
+Jadi, kehadiran menjadi sumber utama data potong / bayar gaji.
+
+2) Aktor / User yang Terlibat
+
+Karyawan:
+Melakukan absensi
+Mengajukan tidak finger
+Mengajukan unpaid leave
+Mengajukan hourly unpaid leave
+Mengajukan paid leave
+Mengajukan sakit
+Melihat notifikasi dan status pengajuan
+
+Supervisor:
+Memantau karyawan di department / section / team
+Menerima notifikasi pengajuan
+Menyetujui / menolak pengajuan tertentu
+Memberi peringatan manual
+Admin HRD:
+Verifikasi pengajuan
+Memeriksa dokumen / surat sakit
+Mengelola data absensi dan cuti
+Menentukan status final kehadiran
+Membuat warning letter
+
+Manager HRD:
+Approve final untuk kasus tertentu
+Menyelesaikan konflik approval
+Menentukan keputusan final pada pengajuan tidak finger / leave / sickness tertentu
+Payroll Officer / Finance
+Menarik data final attendance
+Menghitung payroll
+Membuat slip gaji
+Menutup periode payroll
+3) Sumber Data Kehadiran
+
+Sistem menggunakan 2 jalur:
+
+A. Finger Print Dummy
+
+Karena sementara memakai data dummy, sistem meniru hasil mesin finger:
+
+timestamp masuk
+timestamp keluar
+device id
+lokasi / shift / department
+status valid / invalid / missing
+B. Kamera HP
+
+Sistem Kehadiran Dipakai untuk pekerja lapangan:
+
+selfie
+foto bersama pekerja lain
+foto bersama client/pelanggan
+Foto ini menjadi bukti kehadiran lapangan dan dapat menjadi dasar validasi manual oleh Supervisor dan Admin HRD
+
+4) Label Kehadiran Utama
+
+Status final kehadiran setiap hari hanya boleh jatuh ke salah satu label berikut:
+
+HADIR
+UNPAID LEAVE TANPA KETERANGAN
+UNPAID LEAVE DENGAN KETERANGAN
+HOURLY UNPAID LEAVE
+PAID LEAVE
+SAKIT
+
+Tambahan teknis yang biasanya juga perlu ada di sistem:
+
+TIDAK FINGER / PENDING VERIFICATION
+REJECTED
+NO LOG
+AUTO CONVERTED TO HOURLY UNPAID LEAVE
+
+Label teknis ini boleh ada di proses, tetapi label final payroll tetap mengacu pada 6 label utama di atas.
+
+5) Alur Kehadiran Harian
+
+A. Saat jam masuk seharusnya tiba
+
+Sistem membandingkan:
+
+jam masuk jadwal
+log finger aktual
+atau pengajuan kamera HP
+
+Jika karyawan belum masuk, sistem mengirim:
+
+notifikasi in-app
+notifikasi ke supervisor bila lewat batas tertentu
+
+B. Saat jam keluar seharusnya tiba
+
+Sistem memeriksa:
+
+apakah finger keluar ada
+apakah absensi lapangan sudah lengkap
+apakah ada pengajuan tidak finger keluar
+
+Jika tidak ada log keluar, sistem mengirim peringatan dan membuka proses verifikasi.
+
+6) Logika HADIR
+
+Status HADIR berlaku jika:
+
+karyawan finger masuk, dan
+karyawan finger keluar, dan
+data dianggap valid oleh sistem
+
+Jika salah satu log hilang:
+
+masuk ke proses TIDAK FINGER
+lalu diverifikasi oleh atasan dan HRD
+
+7) Proses Tidak Finger
+
+Ini dipakai bila:
+
+karyawan lupa finger masuk
+karyawan lupa finger keluar
+terjadi kondisi teknis pada perangkat finger
+ada kebutuhan koreksi absensi
+Aturan utama
+Pengajuan hanya bisa dilakukan maksimal 2 jam sejak jam masuk seharusnya.
+Sistem memberi notifikasi otomatis setelah melewati jam masuk / jam keluar.
+Karyawan mengisi alasan tidak finger.
+Supervisor, admin HRD, dan manager HRD terlibat dalam approval.
+Jika ditolak manager HRD, status bisa berubah menjadi HOURLY UNPAID LEAVE secara otomatis.
+Jika pengajuan dibuat lebih dari 1 jam setelah kejadian, sistem boleh langsung memberi default HOURLY UNPAID LEAVE sesuai kebijakan Anda.
+Mekanisme status
+Draft
+Submitted
+Pending Supervisor
+Pending HRD
+Pending Manager
+Approved
+Rejected
+Auto Converted
+Dampak payroll
+Jika approved: bisa tetap dianggap HADIR
+Jika rejected: masuk ke potongan sesuai aturan yang ditentukan
+Jika auto converted: dihitung sebagai hourly unpaid leave
+
+8) Logika UNPAID LEAVE
+
+A. UNPAID LEAVE TANPA KETERANGAN
+
+Terjadi jika:
+
+karyawan tidak hadir
+tidak ada pengajuan
+atau pengajuan ditolak
+
+B. UNPAID LEAVE DENGAN KETERANGAN
+
+Terjadi jika:
+
+karyawan mengajukan tidak hadir
+supervisor menyetujui
+HRD juga menyetujui
+Aturan approval
+Supervisor approve dulu
+HRD verifikasi kemudian
+Jika supervisor menolak, maka langsung masuk unpaid leave tanpa keterangan
+Jika supervisor setuju tetapi HRD menolak, tetap dianggap unpaid leave tanpa keterangan
+Dampak payroll
+
+Keduanya sama-sama potong gaji.
+
+9) Logika HOURLY UNPAID LEAVE
+
+Karyawan dapat mengajukan cuti berdasarkan jam:
+
+1 jam
+2 jam
+3 jam
+dan seterusnya sesuai policy
+Approval
+
+Sama seperti unpaid leave dengan keterangan:
+
+diajukan oleh karyawan
+disetujui supervisor
+diverifikasi HRD
+Dampak payroll
+Potongan berdasarkan jam yang disetujui
+Cocok untuk urusan pribadi singkat, izin keluar kantor, atau keterlambatan yang diproses sebagai jam tidak dibayar
+
+10) Logika PAID LEAVE
+Hak cuti
+Karyawan masa kerja lebih dari 12 bulan memperoleh 12 hari paid leave
+Karakteristik
+Tidak hadir, tetapi tidak dipotong gaji
+Jumlah hari cuti akan mengurangi saldo cuti yang tersedia
+
+Bentuk pengajuan
+A. Setengah hari
+
+Karyawan memilih:
+
+setengah hari pagi
+setengah hari siang
+
+B. Satu hari atau lebih
+
+Karyawan memilih:
+
+tanggal mulai
+tanggal berakhir
+
+Sistem menghitung jumlah hari cuti yang dipakai.
+
+Validasi saldo cuti Jika permintaan cuti lebih besar dari saldo:
+
+C. Cuti berdasarkan Legalitas UU:
+Cuti Kehamilan 90 hari
+Cuti Orang Tua Meninggal 3 hari
+Cuti Istri/Suami Meninggal 3 hari 
+Cuti Anak Kandung Meninggal 3 hari 
+Cuti Saudara Kandung Meninggal 2 hari
+
+
+11) Logika SAKIT
+Karakteristik
+Tidak hadir karena sakit
+Jika disetujui, status kehadiran menjadi SAKIT
+Tidak dipotong gaji jika policy perusahaan menyatakan demikian
+Pengajuan
+
+Karyawan mengisi:
+
+keterangan sakit
+upload surat sakit
+Validasi rumah sakit / klinik
+
+Sistem harus memiliki database partner:
+
+rumah sakit
+klinik
+fasilitas kesehatan yang diakui perusahaan
+
+Jika nama penyedia tidak ada di database partner:
+
+pengajuan ditolak oleh HRD
+Approval
+Tidak perlu approval supervisor
+Langsung masuk ke admin HRD
+Supervisor hanya memantau status proses
+Dampak payroll
+Jika approved dan policy membolehkan: tidak dipotong
+Jika ditolak: bisa berubah menjadi unpaid leave / alpha sesuai kebijakan
+
+12) Mekanisme Warning Letter
+
+Sistem harus otomatis membuat warning letter berdasarkan pola absensi.
+
+Jenis warning letter
+Warning Letter 1
+Warning Letter 2
+Warning Letter 3
+Termination Warning Letter
+A. Warning Letter 1
+
+Jika karyawan melakukan:
+
+UNPAID LEAVE TANPA KETERANGAN 1 kali
+maksimal satu kali per bulan
+B. Warning Letter 2
+
+Jika karyawan:
+
+melakukan unpaid leave tanpa keterangan 3 hari berturut-turut, atau
+warning letter 1 lebih dari 3 kali dalam satu bulan sejak tanggal warning letter pertama, atau
+melakukan unpaid leave dengan keterangan 5 hari berturut-turut dalam satu bulan
+C. Warning Letter 3
+
+Jika karyawan:
+
+melakukan unpaid leave tanpa keterangan 3 hari berturut-turut
+dan sebelumnya sudah pernah mendapat:
+warning letter 2 sebanyak 1 kali, atau
+warning letter 1 sebanyak 3 kali
+D. Termination Warning Letter
+
+Jika karyawan:
+
+sudah mendapat warning letter 3 satu kali
+lalu setelah itu mendapat warning letter 1 atau warning letter 2 satu kali lagi
+
+13) Hubungan Warning Letter dengan Payroll
+
+Warning letter tidak selalu langsung memotong gaji, tetapi menjadi:
+
+bukti pelanggaran disiplin
+dasar sanksi administratif
+dasar eskalasi HR
+dasar termination
+
+Namun kasus absensi yang memicu warning letter biasanya juga memicu:
+
+potongan gaji
+potongan attendance
+pengurangan benefit tertentu
+
+14) Integrasi Kehadiran ke Penggajian
+
+Ini bagian paling penting.
+
+Status kehadiran → efek payroll
+HADIR
+
+Dibayar normal.
+
+UNPAID LEAVE TANPA KETERANGAN
+
+Dipotong penuh sesuai rate harian atau jam.
+
+UNPAID LEAVE DENGAN KETERANGAN
+
+Tetap dipotong, kecuali policy khusus memberi toleransi.
+
+HOURLY UNPAID LEAVE
+
+Dipoton g berdasarkan jumlah jam yang diambil.
+
+PAID LEAVE
+
+Tidak dipotong gaji, tetapi saldo cuti berkurang.
+
+SAKIT
+
+Tidak dipotong gaji jika approved dan sesuai policy.
+
+15) Rumus Potong Gaji Terintegrasi
+
+A. Potongan harian
+
+Jika karyawan alpha 1 hari:
+
+Potongan = gaji harian
+
+Misal:
+
+gaji bulanan = 6.000.000
+hari kerja bulan itu = 22
+
+Maka:
+gaji harian = 6.000.000 / 22
+
+B. Potongan jam
+
+Untuk hourly unpaid leave:
+
+potongan = jam tidak dibayar × hourly rate
+
+Jika:
+
+hourly rate = gaji bulanan / pembagi jam bulanan
+
+Maka potongan bisa dihitung lebih presisi.
+
+C. Potongan menit terlambat
+
+Jika terlambat dihitung per menit:
+
+potongan terlambat = menit terlambat × (hourly rate / 60)
+
+Bila ada toleransi:
+
+menit terlambat dikurangi dulu dengan toleransi
+sisa menit baru dipotong
+
+16) Logika Terlambat
+Cara kerja
+Bandingkan jam masuk aktual dengan jam masuk jadwal.
+Hitung selisih menit.
+Kurangi toleransi.
+Hitung potongan.
+Contoh
+jam masuk seharusnya: 08:00
+jam datang: 08:17
+toleransi: 10 menit
+
+Maka:
+
+terlambat efektif = 7 menit
+potongan = 7 × minute rate
+17) Logika Potong Gaji karena Tidak Finger
+
+Tidak finger tidak otomatis dianggap hadir. Sistem harus menentukan salah satu:
+
+HADIR jika approve
+HOURLY UNPAID LEAVE jika rejected atau terlambat melebihi batas
+UNPAID LEAVE TANPA KETERANGAN jika tidak ada pengajuan
+Alpha / cut pay jika kebijakan perusahaan menegaskan absensi tidak sah dipotong penuh
+
+18) Rekap Aturan Approval
+Tidak Finger
+Karyawan → Supervisor → HRD Admin → Manager HRD
+Unpaid Leave
+Karyawan → Supervisor → HRD Verifikasi
+Paid Leave
+Karyawan → Supervisor → HRD Verifikasi
+Sakit
+Karyawan → HRD Admin langsung
+Supervisor hanya monitor
+
+Sistem memberi warning
+Pengajuan tetap bisa ditahan atau ditolak sesuai policy
+Approval
+Supervisor approve
+HRD verifikasi
+Kondisi penolakan
+Jika supervisor menolak: langsung dianggap UNPAID LEAVE TANPA KETERANGAN
+Jika supervisor setuju tetapi HRD menolak: tetap potong gaji
+Jika disetujui semua: saldo cuti berkurang, gaji tidak dipotong
+
+19) Urutan Proses Harian Sistem
+
+A. Saat data absensi masuk
+Sistem menerima log finger atau upload kamera HP.
+Sistem cek jam dan jadwal.
+Sistem tentukan status awal.
+Sistem kirim notifikasi in-app ke karyawan.
+
+B. Jika ada missing log
+Sistem menandai sebagai tidak finger.
+Karyawan diberi waktu pengajuan.
+Supervisor menerima daftar karyawan yang belum valid.
+Karyawan mengisi alasan.
+Approval berjalan.
+Status final ditetapkan.
+
+C. Saat payroll closing
+Sistem ambil status final semua hari.
+Sistem hitung total hadir, izin, cuti, sakit, unpaid leave.
+Sistem hitung overtime, late deduction, cut pay.
+Sistem hitung gross dan net salary.
+Sistem generate slip gaji.
+Sistem simpan audit trail.
+
+20) Logika Final untuk Payroll
+
+Secara ringkas, mesin gaji membaca hasil kehadiran seperti ini:
+
+Jika HADIR
+gaji penuh
+mungkin ditambah lembur
+Jika PAID LEAVE
+gaji tetap
+saldo cuti berkurang
+Jika SAKIT
+gaji tetap jika approved
+Jika UNPAID LEAVE
+potong gaji
+Jika HOURLY UNPAID LEAVE
+potong per jam
+Jika TIDAK FINGER ditolak
+jadi potongan sesuai policy
+Jika terlambat
+potong per menit
+Jika warning letter aktif
+simpan sebagai sanksi administratif
+bisa memicu tindakan HR berikutnya
+
+21) Formula Ringkas Payroll Terintegrasi
+
+Net Pay =
+Base Salary Prorata
+
+Fixed Allowance
+Variable Allowance
+Overtime
+Bonus
+Late Deduction
+Unpaid Leave Deduction
+Hourly Unpaid Leave Deduction
+Alpha Deduction
+Loan Deduction
+Tax
+Other Deduction
+
+22) Catatan Penting agar Sistem Profesional
+Semua pengajuan harus punya status audit.
+Tidak boleh ada double deduction.
+Attendance final harus ditetapkan sebelum payroll closing.
+Setiap warning letter harus punya dasar aturan.
+Approval harus tercatat siapa, kapan, dan mengapa.
+Slip gaji harus menjelaskan semua komponen.
+Rule payroll sebaiknya configurable, bukan hardcode.
+
+Sangat Penting!
+
+Pisahkan status pengajuan dengan status kehadiran final
+Saat ini beberapa bagian masih tercampur. Contoh: pengajuan “tidak finger”, “leave”, dan “sakit” sebaiknya punya status workflow sendiri, lalu setelah final baru menghasilkan status kehadiran harian seperti HADIR, PAID LEAVE, SAKIT, UNPAID LEAVE, atau HOURLY UNPAID LEAVE.
+Jadi tidak langsung “request = attendance”.
+Bedakan “ditolak” dengan “otomatis jadi unpaid leave”
+Ini perlu dibuat lebih tegas. Misalnya:
+pengajuan tidak finger ditolak → status kehadiran tetap mengikuti data aktual, lalu jika tidak ada bukti maka jadi unpaid leave / alpha
+pengajuan leave ditolak → tidak otomatis sama dengan unpaid leave tanpa keterangan, karena itu status disiplin yang berbeda
+Dengan cara ini sistem lebih konsisten dan audit trail lebih jelas.
+Definisikan aturan potong gaji secara lebih spesifik
+Sekarang sudah benar arahnya, tetapi masih perlu standar yang jelas:
+potongan terlambat dihitung per menit atau dibulatkan per 5/15 menit?
+potongan unpaid leave dihitung dari gaji harian, gaji jam, atau gaji pokok saja?
+apakah tunjangan tertentu ikut dipotong atau tidak?
+apakah potongan berlaku pada hari kerja saja atau juga shift/hari libur?
+Ini penting supaya payroll tidak menimbulkan sengketa.
+Tambah aturan untuk shift, libur, dan jadwal berbeda
+Sistem Anda sudah punya department/jabatan berbeda, tapi untuk dunia nyata biasanya juga perlu:
+shift pagi / siang / malam
+hari libur nasional
+hari libur mingguan
+jam kerja fleksibel
+field staff / lapangan
+Tanpa ini, logika kehadiran dan lembur akan sulit dipakai di perusahaan yang kompleks.
+Perjelas aturan sick leave
+Bagian sakit sudah bagus, tetapi sebaiknya ditambah:
+maksimal hari sakit yang dibayar per tahun
+apakah surat dokter wajib untuk 1 hari atau mulai hari ke-2
+apakah partner RS/klinik bisa berbeda per cabang
+apakah karyawan bisa upload surat susulan
+Ini membuat aturan sakit lebih realistis dan tidak mudah diperdebatkan.
+Warning letter sebaiknya tidak langsung dicampur dengan payroll logic
+Warning letter adalah modul disiplin, bukan modul gaji. Memang bisa dipicu oleh absensi, tetapi sebaiknya hasilnya hanya:
+generate surat peringatan
+simpan histori pelanggaran
+menjadi dasar eskalasi HR
+Potongan gaji tetap diproses oleh attendance/payroll engine. Jadi dua hal ini jangan terlalu digabung.
+
+sangat Penting!
+
+Tambahkan grace period / toleransi keterlambatan
+Tambahkan aturan rounding untuk menit/jam
+Tambahkan approval matrix yang jelas untuk setiap jenis pengajuan
+Tambahkan audit log: siapa approve, kapan, alasan apa
+Tambahkan saldo cuti yang terpisah dari status kehadiran harian
+Tambahkan aturan kasus khusus seperti dinas luar, training, WFH, dan lembur yang dipaksakan atasan
+
+Struktur Sistem Secara Umum L90: 1) capture kehadiran → 2) verifikasi/approval → 3) status final harian → 4) hitung impact payroll → 5) generate warning letter
