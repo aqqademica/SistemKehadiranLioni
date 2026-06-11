@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ubah Password — KehadiranApp</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="/KehadiranApp/public/css/app.css">
+  <link rel="stylesheet" href="<?= APP_URL ?>/css/app.css">
 </head>
 <body>
 
@@ -25,7 +25,7 @@
       </div>
     <?php endif; ?>
 
-    <form method="POST" action="/KehadiranApp/public/update-password">
+    <form method="POST" action="<?= APP_URL ?>/update-password">
       <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf ?? '') ?>">
 
       <div class="form-group">
@@ -47,7 +47,7 @@
       <button type="submit" class="btn-login" style="margin-top:20px;">
         <i class="fas fa-save"></i> &nbsp;Simpan Password
       </button>
-      <a href="/KehadiranApp/public/logout" style="display:block; text-align:center; margin-top:15px; color:var(--text-muted); text-decoration:none;">Batal (Logout)</a>
+      <a href="<?= APP_URL ?>/logout" style="display:block; text-align:center; margin-top:15px; color:var(--text-muted); text-decoration:none;">Batal (Logout)</a>
     </form>
   </div>
 </div>

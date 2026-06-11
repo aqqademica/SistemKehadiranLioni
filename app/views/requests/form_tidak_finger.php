@@ -6,7 +6,7 @@
         <div class="card-title"><i class="fas fa-fingerprint"></i> Pengajuan Tidak Finger</div>
     </div>
     <div class="card-body">
-        <form action="/KehadiranApp/public/requests/tidak-finger" method="POST">
+        <form action="<?= APP_URL ?>/requests/tidak-finger" method="POST">
             <input type="hidden" name="_token" value="<?= $csrf_token ?>">
             
             <div class="form-group mb-3">
@@ -34,7 +34,7 @@
             </div>
 
             <div style="display:flex;gap:10px;margin-top:20px">
-                <a href="/KehadiranApp/public/requests" class="btn btn-outline" style="flex:1">Batal</a>
+                <a href="<?= APP_URL ?>/requests" class="btn btn-outline" style="flex:1">Batal</a>
                 <button type="submit" class="btn btn-primary" style="flex:2">Kirim Pengajuan</button>
             </div>
         </form>

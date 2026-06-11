@@ -12,7 +12,7 @@
                     <h4 style="margin:0">Periode Aktif: <?= date('F Y', mktime(0,0,0, $openPeriod['month'], 1)) ?></h4>
                     <p style="margin:5px 0 0 0; font-size:13px;">Range: <?= date('d M', strtotime($openPeriod['start_date'])) ?> s/d <?= date('d M Y', strtotime($openPeriod['end_date'])) ?></p>
                 </div>
-                <form action="/KehadiranApp/public/payroll/run" method="POST">
+                <form action="<?= APP_URL ?>/payroll/run" method="POST">
                     <input type="hidden" name="_token" value="<?= $csrf_token ?>">
                     <input type="hidden" name="period_id" value="<?= $openPeriod['id'] ?>">
                     <button type="submit" class="btn btn-primary" onclick="return confirm('Jalankan kalkulasi payroll untuk periode ini?')">
@@ -45,7 +45,7 @@
                             </span>
                         </td>
                         <td>
-                            <a href="/KehadiranApp/public/payroll/history?id=<?= $p['id'] ?>" class="btn btn-outline btn-sm">Lihat Detail</a>
+                            <a href="<?= APP_URL ?>/payroll/history?id=<?= $p['id'] ?>" class="btn btn-outline btn-sm">Lihat Detail</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

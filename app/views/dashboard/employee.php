@@ -19,15 +19,15 @@ $todayLabel = $statusLabels[$todayStatus['final_status'] ?? 'NO_LOG'] ?? ['Belum
     <div class="card-title" style="font-size:1.1rem; color:var(--primary); font-weight:700"><i class="fas fa-bolt"></i> Aksi Cepat</div>
   </div>
   <div class="card-body" style="display:flex; gap:15px; flex-wrap:wrap; padding:20px">
-    <a href="/KehadiranApp/public/attendance/camera" class="btn btn-primary btn-lg" style="flex:1; min-width:200px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; border-radius:15px">
+    <a href="<?= APP_URL ?>/attendance/camera" class="btn btn-primary btn-lg" style="flex:1; min-width:200px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; border-radius:15px">
       <i class="fas fa-camera" style="font-size:24px"></i>
       <span>Absen Lapangan</span>
     </a>
-    <a href="/KehadiranApp/public/requests/tidak-finger" class="btn btn-outline btn-lg" style="flex:1; min-width:200px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; border-radius:15px">
+    <a href="<?= APP_URL ?>/requests/tidak-finger" class="btn btn-outline btn-lg" style="flex:1; min-width:200px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; border-radius:15px">
       <i class="fas fa-fingerprint" style="font-size:24px"></i>
       <span>Pengajuan Tidak Finger</span>
     </a>
-    <a href="/KehadiranApp/public/requests/leave" class="btn btn-outline btn-lg" style="flex:1; min-width:200px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; border-radius:15px">
+    <a href="<?= APP_URL ?>/requests/leave" class="btn btn-outline btn-lg" style="flex:1; min-width:200px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; border-radius:15px">
       <i class="fas fa-calendar-plus" style="font-size:24px"></i>
       <span>LEAVE (Cuti / Sakit)</span>
     </a>
@@ -72,7 +72,7 @@ $todayLabel = $statusLabels[$todayStatus['final_status'] ?? 'NO_LOG'] ?? ['Belum
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="fas fa-file-alt"></i> Pengajuan Aktif</div>
-      <a href="/KehadiranApp/public/requests" class="btn btn-outline btn-sm">Lihat Semua</a>
+      <a href="<?= APP_URL ?>/requests" class="btn btn-outline btn-sm">Lihat Semua</a>
     </div>
     <div class="card-body" style="padding:0">
       <?php if (empty($activeRequests)): ?>
@@ -103,7 +103,7 @@ $todayLabel = $statusLabels[$todayStatus['final_status'] ?? 'NO_LOG'] ?? ['Belum
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="fas fa-bell"></i> Notifikasi Terbaru</div>
-      <a href="/KehadiranApp/public/notifications" class="btn btn-outline btn-sm">Lihat Semua</a>
+      <a href="<?= APP_URL ?>/notifications" class="btn btn-outline btn-sm">Lihat Semua</a>
     </div>
     <div class="card-body" style="padding:0">
       <?php if (empty($notifications)): ?>
@@ -134,14 +134,14 @@ $todayLabel = $statusLabels[$todayStatus['final_status'] ?? 'NO_LOG'] ?? ['Belum
     <div class="card-title text-muted"><i class="fas fa-fingerprint"></i> Fingerprint Simulator (Testing)</div>
   </div>
   <div class="card-body" style="display:flex;gap:12px;justify-content:center;padding:20px">
-    <form action="/KehadiranApp/public/attendance/finger" method="POST">
+    <form action="<?= APP_URL ?>/attendance/finger" method="POST">
       <input type="hidden" name="_token" value="<?= $csrf_token ?>">
       <input type="hidden" name="type" value="in">
       <button type="submit" class="btn btn-success">
         <i class="fas fa-sign-in-alt"></i> Finger Masuk
       </button>
     </form>
-    <form action="/KehadiranApp/public/attendance/finger" method="POST">
+    <form action="<?= APP_URL ?>/attendance/finger" method="POST">
       <input type="hidden" name="_token" value="<?= $csrf_token ?>">
       <input type="hidden" name="type" value="out">
       <button type="submit" class="btn btn-danger">

@@ -73,7 +73,7 @@
                 <!-- Hasil pencarian via AJAX -->
             </div>
 
-            <form action="/KehadiranApp/public/hrd/accounts/store" method="POST" id="formCreate" style="display:none; border-top:1px solid #eee; padding-top:20px;">
+            <form action="<?= APP_URL ?>/hrd/accounts/store" method="POST" id="formCreate" style="display:none; border-top:1px solid #eee; padding-top:20px;">
                 <input type="hidden" name="_token" value="<?= $csrf_token ?>">
                 <input type="hidden" name="employee_id" id="c_employee_id">
                 
@@ -115,7 +115,7 @@
             <button class="btn btn-outline btn-sm" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="card-body">
-            <form action="/KehadiranApp/public/hrd/accounts/update" method="POST">
+            <form action="<?= APP_URL ?>/hrd/accounts/update" method="POST">
                 <input type="hidden" name="_token" value="<?= $csrf_token ?>">
                 <input type="hidden" name="user_id" id="e_user_id">
                 

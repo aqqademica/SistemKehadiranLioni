@@ -10,7 +10,7 @@ $isEdit = !empty($employee);
         </div>
     </div>
     <div class="card-body">
-        <form action="/KehadiranApp/public/admin/employees/<?= $isEdit ? 'update' : 'store' ?>" method="POST" enctype="multipart/form-data">
+        <form action="<?= APP_URL ?>/admin/employees/<?= $isEdit ? 'update' : 'store' ?>" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="<?= $csrf_token ?>">
             <?php if ($isEdit): ?>
                 <input type="hidden" name="id" value="<?= $employee['id'] ?>">
@@ -128,21 +128,21 @@ $isEdit = !empty($employee);
                             <label>Foto Karyawan</label>
                             <input type="file" name="photo" class="form-control" accept=".jpg,.jpeg,.png">
                             <?php if (!empty($employee['photo'])): ?>
-                                <small><a href="/KehadiranApp/public<?= $employee['photo'] ?>" target="_blank">Lihat Foto Saat Ini</a></small>
+                                <small><a href="<?= APP_URL ?><?= $employee['photo'] ?>" target="_blank">Lihat Foto Saat Ini</a></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group mb-2">
                             <label>Foto KTP</label>
                             <input type="file" name="photo_ktp" class="form-control" accept=".jpg,.jpeg,.png">
                             <?php if (!empty($employee['photo_ktp'])): ?>
-                                <small><a href="/KehadiranApp/public<?= $employee['photo_ktp'] ?>" target="_blank">Lihat KTP Saat Ini</a></small>
+                                <small><a href="<?= APP_URL ?><?= $employee['photo_ktp'] ?>" target="_blank">Lihat KTP Saat Ini</a></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group mb-0">
                             <label>Foto Ijazah</label>
                             <input type="file" name="photo_ijazah" class="form-control" accept=".jpg,.jpeg,.png">
                             <?php if (!empty($employee['photo_ijazah'])): ?>
-                                <small><a href="/KehadiranApp/public<?= $employee['photo_ijazah'] ?>" target="_blank">Lihat Ijazah Saat Ini</a></small>
+                                <small><a href="<?= APP_URL ?><?= $employee['photo_ijazah'] ?>" target="_blank">Lihat Ijazah Saat Ini</a></small>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -150,7 +150,7 @@ $isEdit = !empty($employee);
             </div>
 
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
-                <a href="/KehadiranApp/public/admin/employees" class="btn btn-outline">Batal</a>
+                <a href="<?= APP_URL ?>/admin/employees" class="btn btn-outline">Batal</a>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> <?= $isEdit ? 'Simpan Perubahan' : 'Simpan Karyawan Baru' ?>
                 </button>

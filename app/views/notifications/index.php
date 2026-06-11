@@ -17,15 +17,15 @@
                     <?php
                         $link = '#';
                         if ($notif['related_type'] === 'leave') {
-                            $link = '/KehadiranApp/public/requests/leave';
+                            $link = APP_URL . '/requests/leave';
                         } elseif ($notif['related_type'] === 'tidak_finger') {
-                            $link = '/KehadiranApp/public/requests/tidak-finger';
+                            $link = APP_URL . '/requests/tidak-finger';
                         } elseif ($notif['related_type'] === 'overtime') {
-                            $link = '/KehadiranApp/public/requests/overtime';
+                            $link = APP_URL . '/requests/overtime';
                         } elseif ($notif['related_type'] === 'payroll') {
-                            $link = '/KehadiranApp/public/my-salary';
+                            $link = APP_URL . '/my-salary';
                         } elseif ($notif['related_type'] === 'warning_letter') {
-                            $link = '/KehadiranApp/public/dashboard';
+                            $link = APP_URL . '/dashboard';
                         }
                     ?>
                     <a href="<?= $link ?>" style="text-decoration:none; padding: 15px 20px; border-bottom: 1px solid var(--border-color); display:flex; gap:15px; align-items:flex-start; background: <?= $notif['is_read'] ? 'transparent' : '#f8f9fa' ?>; transition: background 0.2s;">

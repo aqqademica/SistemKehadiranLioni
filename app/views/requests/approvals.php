@@ -59,7 +59,7 @@
             <div class="card-title" id="modalTitle">Konfirmasi Approval</div>
         </div>
         <div class="card-body">
-            <form action="/KehadiranApp/public/requests/approvals" method="POST">
+            <form action="<?= APP_URL ?>/requests/approvals" method="POST">
                 <input type="hidden" name="_token" value="<?= $csrf_token ?>">
                 <input type="hidden" name="request_id" id="modalRequestId">
                 <input type="hidden" name="decision" id="modalDecision">
@@ -144,7 +144,7 @@ function showApprovalModal(req, decision) {
         
         const docSpan = document.getElementById('m_sakit_doc');
         if (req.detail.document_path) {
-            docSpan.innerHTML = `<a href="/KehadiranApp/public${req.detail.document_path}" target="_blank" style="color:var(--primary); font-weight:bold;"><i class="fas fa-file-medical"></i> Lihat Dokumen</a>`;
+            docSpan.innerHTML = `<a href="<?= APP_URL ?>${req.detail.document_path}" target="_blank" style="color:var(--primary); font-weight:bold;"><i class="fas fa-file-medical"></i> Lihat Dokumen</a>`;
         } else {
             docSpan.innerHTML = `<span class="text-muted">Tidak ada dokumen</span>`;
         }

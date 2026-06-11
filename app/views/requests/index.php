@@ -6,8 +6,8 @@
         <div class="card-title"><i class="fas fa-file-alt"></i> Pengajuan Saya</div>
         <div class="card-actions">
         <div class="card-actions" style="display:flex; gap:10px;">
-            <a href="/KehadiranApp/public/requests/tidak-finger" class="btn btn-outline btn-sm"><i class="fas fa-fingerprint"></i> Tidak Finger</a>
-            <a href="/KehadiranApp/public/requests/leave" class="btn btn-primary btn-sm"><i class="fas fa-calendar-plus"></i> Cuti / Sakit / Izin</a>
+            <a href="<?= APP_URL ?>/requests/tidak-finger" class="btn btn-outline btn-sm"><i class="fas fa-fingerprint"></i> Tidak Finger</a>
+            <a href="<?= APP_URL ?>/requests/leave" class="btn btn-primary btn-sm"><i class="fas fa-calendar-plus"></i> Cuti / Sakit / Izin</a>
         </div>
         </div>
     </div>
@@ -64,7 +64,7 @@
                                     <?php endif; ?>
                                     
                                     <?php if (strtotime($req['start_date']) > strtotime('today')): ?>
-                                        <form action="/KehadiranApp/public/requests/cancel" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?');" style="display:inline;">
+                                        <form action="<?= APP_URL ?>/requests/cancel" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?');" style="display:inline;">
                                             <input type="hidden" name="_token" value="<?= $csrf_token ?? '' ?>">
                                             <input type="hidden" name="id" value="<?= $req['id'] ?>">
                                             <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color); border-color:var(--danger-color);" title="Batal/Hapus"><i class="fas fa-times"></i></button>
@@ -88,7 +88,7 @@
             <button class="btn btn-outline btn-sm" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="card-body">
-            <form action="/KehadiranApp/public/requests/update-leave" method="POST">
+            <form action="<?= APP_URL ?>/requests/update-leave" method="POST">
                 <input type="hidden" name="_token" value="<?= $csrf_token ?? '' ?>">
                 <input type="hidden" name="id" id="e_req_id">
                 

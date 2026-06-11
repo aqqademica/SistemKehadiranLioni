@@ -37,7 +37,7 @@
     <div class="card">
         <div class="card-header">
             <div class="card-title"><i class="fas fa-clock"></i> Pengajuan Terbaru</div>
-            <a href="/KehadiranApp/public/requests/approvals" class="btn btn-primary btn-sm">Lihat Antrian</a>
+            <a href="<?= APP_URL ?>/requests/approvals" class="btn btn-primary btn-sm">Lihat Antrian</a>
         </div>
         <div class="card-body" style="padding:0">
             <?php if (empty($recentRequests)): ?>
@@ -73,13 +73,13 @@
             <div class="card-title"><i class="fas fa-tools"></i> System Tools</div>
         </div>
         <div class="card-body" style="display:flex; flex-direction:column; gap:10px;">
-            <a href="/KehadiranApp/public/admin/sync" class="btn btn-outline w-100" style="text-align:left">
+            <a href="<?= APP_URL ?>/admin/sync" class="btn btn-outline w-100" style="text-align:left">
                 <i class="fas fa-sync"></i> Jalankan Daily Sync
             </a>
-            <a href="/KehadiranApp/public/admin/employees" class="btn btn-outline w-100" style="text-align:left">
+            <a href="<?= APP_URL ?>/admin/employees" class="btn btn-outline w-100" style="text-align:left">
                 <i class="fas fa-user-cog"></i> Kelola Karyawan
             </a>
-            <a href="/KehadiranApp/public/hrd/attendance" class="btn btn-outline w-100" style="text-align:left">
+            <a href="<?= APP_URL ?>/hrd/attendance" class="btn btn-outline w-100" style="text-align:left">
                 <i class="fas fa-calendar-check"></i> Rekap Kehadiran
             </a>
         </div>

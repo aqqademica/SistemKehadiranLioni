@@ -35,7 +35,7 @@ $activeTab = $tab ?: 'positions';
   </div>
   <div class="card-body" style="padding:0">
     <div id="formAddPos" style="display:none;padding:15px;border-bottom:1px solid var(--border)">
-      <form action="/KehadiranApp/public/hrd-manager/salary-config/position/store" method="POST">
+      <form action="<?= APP_URL ?>/hrd-manager/salary-config/position/store" method="POST">
         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
         <div class="mini-form">
           <div class="form-group"><label>Jabatan</label><select name="position_id" class="form-control" required><option value="">-- Pilih --</option><?php foreach($positions as $p): ?><option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['name']) ?></option><?php endforeach; ?></select></div>
@@ -58,11 +58,11 @@ $activeTab = $tab ?: 'positions';
           <td>Rp <?= number_format($c['amount'], 0, ',', '.') ?></td>
           <td><div style="display:flex;gap:5px">
             <button class="btn btn-outline btn-sm" onclick="toggleEdit('pc_<?= $c['id'] ?>')"><i class="fas fa-edit"></i></button>
-            <form action="/KehadiranApp/public/hrd-manager/salary-config/position/delete" method="POST" onsubmit="return confirm('Hapus komponen ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
+            <form action="<?= APP_URL ?>/hrd-manager/salary-config/position/delete" method="POST" onsubmit="return confirm('Hapus komponen ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
           </div></td>
         </tr>
         <tr id="pc_<?= $c['id'] ?>" style="display:none"><td colspan="5">
-          <form action="/KehadiranApp/public/hrd-manager/salary-config/position/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>">
+          <form action="<?= APP_URL ?>/hrd-manager/salary-config/position/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>">
             <div class="mini-form">
               <div class="form-group"><label>Jabatan</label><select name="position_id" class="form-control" required><?php foreach($positions as $p): ?><option value="<?= $p['id'] ?>" <?= $c['position_id']==$p['id']?'selected':'' ?>><?= htmlspecialchars($p['name']) ?></option><?php endforeach; ?></select></div>
               <div class="form-group"><label>Nama Komponen</label><input type="text" name="name" class="form-control" value="<?= htmlspecialchars($c['name']) ?>" required></div>
@@ -87,7 +87,7 @@ $activeTab = $tab ?: 'positions';
     <div class="alert alert-info">
       <i class="fas fa-info-circle"></i> Sesuai UU Tenaga Kerja, variabel pembagi default untuk perhitungan upah lembur per jam adalah <strong>173</strong> (Rumus: 1/173 x Upah Sebulan). Anda dapat mengubahnya jika ada kebijakan perusahaan khusus.
     </div>
-    <form action="/KehadiranApp/public/hrd-manager/salary-config/overtime/update" method="POST">
+    <form action="<?= APP_URL ?>/hrd-manager/salary-config/overtime/update" method="POST">
       <input type="hidden" name="_token" value="<?= $csrf_token ?>">
       <div class="form-group mb-3">
         <label>Variabel Pembagi Overtime</label>
@@ -110,7 +110,7 @@ $activeTab = $tab ?: 'positions';
   </div>
   <div class="card-body" style="padding:0">
     <div id="formAddDed" style="display:none;padding:15px;border-bottom:1px solid var(--border)">
-      <form action="/KehadiranApp/public/hrd-manager/salary-config/deduction/store" method="POST">
+      <form action="<?= APP_URL ?>/hrd-manager/salary-config/deduction/store" method="POST">
         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
         <div class="mini-form">
           <div class="form-group"><label>Nama Potongan</label><input type="text" name="name" class="form-control" placeholder="BPJS Kesehatan" required></div>
@@ -134,11 +134,11 @@ $activeTab = $tab ?: 'positions';
           <td><?= htmlspecialchars($d['description'] ?? '-') ?></td>
           <td><div style="display:flex;gap:5px">
             <button class="btn btn-outline btn-sm" onclick="toggleEdit('ded_<?= $d['id'] ?>')"><i class="fas fa-edit"></i></button>
-            <form action="/KehadiranApp/public/hrd-manager/salary-config/deduction/delete" method="POST" onsubmit="return confirm('Hapus potongan ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $d['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
+            <form action="<?= APP_URL ?>/hrd-manager/salary-config/deduction/delete" method="POST" onsubmit="return confirm('Hapus potongan ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $d['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
           </div></td>
         </tr>
         <tr id="ded_<?= $d['id'] ?>" style="display:none"><td colspan="5">
-          <form action="/KehadiranApp/public/hrd-manager/salary-config/deduction/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $d['id'] ?>">
+          <form action="<?= APP_URL ?>/hrd-manager/salary-config/deduction/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $d['id'] ?>">
             <div class="mini-form">
               <div class="form-group"><label>Nama</label><input type="text" name="name" class="form-control" value="<?= htmlspecialchars($d['name']) ?>" required></div>
               <div class="form-group"><label>Potongan (%)</label><input type="number" step="0.01" name="percent_amount" class="form-control" value="<?= $d['percent_amount'] ?>"></div>

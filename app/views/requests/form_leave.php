@@ -6,7 +6,7 @@
         <div class="card-title"><i class="fas fa-calendar-plus"></i> Form Pengajuan Leave / Cuti</div>
     </div>
     <div class="card-body">
-        <form action="/KehadiranApp/public/requests/leave" method="POST" enctype="multipart/form-data">
+        <form action="<?= APP_URL ?>/requests/leave" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="<?= $csrf_token ?>">
             
             <div class="form-group mb-3">
@@ -83,7 +83,7 @@
             </div>
 
             <div style="display:flex; justify-content:space-between;">
-                <a href="/KehadiranApp/public/requests" class="btn btn-outline">Batal</a>
+                <a href="<?= APP_URL ?>/requests" class="btn btn-outline">Batal</a>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Kirim Pengajuan</button>
             </div>
         </form>

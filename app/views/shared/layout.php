@@ -42,63 +42,63 @@ $menus = [];
 if ($roleName === 'employee') {
     $menus = [
         ['section' => 'Menu Utama'],
-        ['icon' => 'fas fa-home',         'label' => 'Dashboard',        'href' => '/KehadiranApp/public/dashboard'],
-        ['icon' => 'fas fa-fingerprint',  'label' => 'Absensi Saya',     'href' => '/KehadiranApp/public/attendance'],
+        ['icon' => 'fas fa-home',         'label' => 'Dashboard',        'href' => APP_URL . '/dashboard'],
+        ['icon' => 'fas fa-fingerprint',  'label' => 'Absensi Saya',     'href' => APP_URL . '/attendance'],
         ['section' => 'Pengajuan'],
-        ['icon' => 'fas fa-file-alt',     'label' => 'Tidak Finger',     'href' => '/KehadiranApp/public/requests/tidak-finger'],
-        ['icon' => 'fas fa-calendar-plus','label'=> 'Leave/Cuti',        'href' => '/KehadiranApp/public/requests/leave'],
+        ['icon' => 'fas fa-file-alt',     'label' => 'Tidak Finger',     'href' => APP_URL . '/requests/tidak-finger'],
+        ['icon' => 'fas fa-calendar-plus','label'=> 'Leave/Cuti',        'href' => APP_URL . '/requests/leave'],
         ['section' => 'Informasi'],
-        ['icon' => 'fas fa-tasks',        'label' => 'Status Pengajuan', 'href' => '/KehadiranApp/public/requests'],
-        ['icon' => 'fas fa-money-bill',   'label' => 'Slip Gaji',        'href' => '/KehadiranApp/public/my-salary'],
+        ['icon' => 'fas fa-tasks',        'label' => 'Status Pengajuan', 'href' => APP_URL . '/requests'],
+        ['icon' => 'fas fa-money-bill',   'label' => 'Slip Gaji',        'href' => APP_URL . '/my-salary'],
         ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '#'],
     ];
 } elseif ($roleName === 'supervisor') {
     $menus = [
         ['section' => 'Menu Utama'],
-        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => '/KehadiranApp/public/dashboard'],
-        ['icon' => 'fas fa-users',        'label' => 'Tim Saya',         'href' => '/KehadiranApp/public/dashboard'],
+        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => APP_URL . '/dashboard'],
+        ['icon' => 'fas fa-users',        'label' => 'Tim Saya',         'href' => APP_URL . '/dashboard'],
         ['section' => 'Approval'],
-        ['icon' => 'fas fa-check-circle', 'label' => 'Antrian Approval', 'href' => '/KehadiranApp/public/requests/approvals'],
-        ['icon' => 'fas fa-calendar-check','label'=> 'Rekap Kehadiran',  'href' => '/KehadiranApp/public/dashboard'],
+        ['icon' => 'fas fa-check-circle', 'label' => 'Antrian Approval', 'href' => APP_URL . '/requests/approvals'],
+        ['icon' => 'fas fa-calendar-check','label'=> 'Rekap Kehadiran',  'href' => APP_URL . '/dashboard'],
         ['section' => 'Informasi'],
         ['icon' => 'fas fa-exclamation-triangle','label'=> 'Warning Letter', 'href' => '#'],
-        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '/KehadiranApp/public/notifications'],
+        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => APP_URL . '/notifications'],
     ];
 } elseif ($roleName === 'hrd_admin') {
     $menus = [
         ['section' => 'Menu Utama'],
-        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => '/KehadiranApp/public/dashboard'],
+        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => APP_URL . '/dashboard'],
         ['section' => 'Kehadiran'],
-        ['icon' => 'fas fa-calendar-alt', 'label' => 'Kehadiran (Semua Karyawan)',  'href' => '/KehadiranApp/public/hrd/attendance'],
-        ['icon' => 'fas fa-check-circle', 'label' => 'Verifikasi',       'href' => '/KehadiranApp/public/requests/approvals'],
+        ['icon' => 'fas fa-calendar-alt', 'label' => 'Kehadiran (Semua Karyawan)',  'href' => APP_URL . '/hrd/attendance'],
+        ['icon' => 'fas fa-check-circle', 'label' => 'Verifikasi',       'href' => APP_URL . '/requests/approvals'],
         ['section' => 'Manajemen'],
-        ['icon' => 'fas fa-user-friends', 'label' => 'Data Karyawan',    'href' => '/KehadiranApp/public/admin/employees'],
-        ['icon' => 'fas fa-hospital',     'label' => 'Mitra Kesehatan',  'href' => '/KehadiranApp/public/hrd/health-partners'],
+        ['icon' => 'fas fa-user-friends', 'label' => 'Data Karyawan',    'href' => APP_URL . '/admin/employees'],
+        ['icon' => 'fas fa-hospital',     'label' => 'Mitra Kesehatan',  'href' => APP_URL . '/hrd/health-partners'],
         ['section' => 'Konfigurasi'],
-        ['icon' => 'fas fa-cog',          'label' => 'Pengaturan HRD',   'href' => '/KehadiranApp/public/hrd/settings'],
-        ['icon' => 'fas fa-user-plus',    'label' => 'Kelola Akun',      'href' => '/KehadiranApp/public/hrd/accounts'],
-        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '/KehadiranApp/public/notifications'],
+        ['icon' => 'fas fa-cog',          'label' => 'Pengaturan HRD',   'href' => APP_URL . '/hrd/settings'],
+        ['icon' => 'fas fa-user-plus',    'label' => 'Kelola Akun',      'href' => APP_URL . '/hrd/accounts'],
+        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => APP_URL . '/notifications'],
     ];
 } elseif ($roleName === 'hrd_manager') {
     $menus = [
         ['section' => 'Menu Utama'],
-        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => '/KehadiranApp/public/dashboard'],
+        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => APP_URL . '/dashboard'],
         ['section' => 'Final Approval'],
-        ['icon' => 'fas fa-check-double', 'label' => 'Final Approval',   'href' => '/KehadiranApp/public/requests/approvals'],
+        ['icon' => 'fas fa-check-double', 'label' => 'Final Approval',   'href' => APP_URL . '/requests/approvals'],
         ['icon' => 'fas fa-exclamation-triangle','label'=> 'Warning Letter', 'href' => '#'],
         ['section' => 'Laporan'],
         ['icon' => 'fas fa-chart-bar',    'label' => 'Statistik',        'href' => '#'],
         ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '#'],
         ['section' => 'Konfigurasi'],
-        ['icon' => 'fas fa-money-check-alt', 'label' => 'Standar Gaji',   'href' => '/KehadiranApp/public/hrd-manager/salary-config'],
+        ['icon' => 'fas fa-money-check-alt', 'label' => 'Standar Gaji',   'href' => APP_URL . '/hrd-manager/salary-config'],
     ];
 } elseif ($roleName === 'payroll_officer') {
     $menus = [
         ['section' => 'Menu Utama'],
-        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => '/KehadiranApp/public/dashboard'],
+        ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => APP_URL . '/dashboard'],
         ['section' => 'Payroll'],
-        ['icon' => 'fas fa-calculator',   'label' => 'Manajemen Payroll','href' => '/KehadiranApp/public/payroll'],
-        ['icon' => 'fas fa-file-invoice-dollar','label'=> 'Slip Gaji',   'href' => '/KehadiranApp/public/payroll'],
+        ['icon' => 'fas fa-calculator',   'label' => 'Manajemen Payroll','href' => APP_URL . '/payroll'],
+        ['icon' => 'fas fa-file-invoice-dollar','label'=> 'Slip Gaji',   'href' => APP_URL . '/payroll'],
         ['icon' => 'fas fa-gift',         'label' => 'Bonus Jabatan',    'href' => '#'],
         ['icon' => 'fas fa-lock',         'label' => 'Payroll Closing',  'href' => '#'],
         ['section' => 'Laporan'],
@@ -115,7 +115,7 @@ if ($roleName === 'employee') {
     <meta name="csrf-token" content="<?= htmlspecialchars($this->generateCsrf(), ENT_QUOTES) ?>">
     <title><?= htmlspecialchars($pageTitle ?? 'KehadiranApp') ?> — KehadiranApp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="/KehadiranApp/public/css/app.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>/css/app.css">
 </head>
 <body>
 <div class="app-wrapper">
@@ -151,7 +151,7 @@ if ($roleName === 'employee') {
         <div class="user-name"><?= htmlspecialchars($fullName) ?></div>
         <div class="user-role"><?= htmlspecialchars($roleDisplay) ?></div>
       </div>
-      <a href="/KehadiranApp/public/logout" class="btn-logout" title="Logout">
+      <a href="<?= APP_URL ?>/logout" class="btn-logout" title="Logout">
         <i class="fas fa-sign-out-alt"></i>
       </a>
     </div>
@@ -170,7 +170,7 @@ if ($roleName === 'employee') {
 
         <!-- Notification Button -->
         <div style="position:relative; margin-right:15px;">
-          <a href="/KehadiranApp/public/notifications" class="navbar-btn" title="Notifikasi" style="text-decoration:none;">
+          <a href="<?= APP_URL ?>/notifications" class="navbar-btn" title="Notifikasi" style="text-decoration:none;">
             <i class="fas fa-bell"></i>
             <?php if ($unreadCount > 0): ?>
               <span class="notif-dot" id="notifCount"><?= $unreadCount > 99 ? '99+' : $unreadCount ?></span>
@@ -223,6 +223,6 @@ if ($roleName === 'employee') {
   </div><!-- .main-content -->
 </div><!-- .app-wrapper -->
 
-<script src="/KehadiranApp/public/js/app.js"></script>
+<script src="<?= APP_URL ?>/js/app.js"></script>
 </body>
 </html>

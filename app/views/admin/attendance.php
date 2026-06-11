@@ -5,7 +5,7 @@
     <div class="card-header">
         <div class="card-title"><i class="fas fa-calendar-check"></i> Rekap Kehadiran Karyawan</div>
         <div class="card-actions">
-            <form action="/KehadiranApp/public/hrd/attendance" method="GET" style="display:flex;gap:10px;">
+            <form action="<?= APP_URL ?>/hrd/attendance" method="GET" style="display:flex;gap:10px;">
                 <input type="date" name="date" class="form-control" value="<?= htmlspecialchars($date) ?>" required>
                 <button type="submit" class="btn btn-primary btn-sm">Filter Tanggal</button>
             </form>

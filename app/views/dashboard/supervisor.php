@@ -30,7 +30,7 @@
     <div class="card">
         <div class="card-header">
             <div class="card-title"><i class="fas fa-tasks"></i> Pengajuan Tim (Termasuk Info Sakit)</div>
-            <a href="/KehadiranApp/public/requests/approvals" class="btn btn-primary btn-sm">Buka Antrian</a>
+            <a href="<?= APP_URL ?>/requests/approvals" class="btn btn-primary btn-sm">Buka Antrian</a>
         </div>
         <div class="card-body" style="padding:0">
             <?php if (empty($pendingApprovals)): ?>

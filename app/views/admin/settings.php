@@ -50,7 +50,7 @@ $activeTab = $tab ?? '';
   </div>
   <div class="card-body" style="padding:0">
     <div id="formAddShift" style="display:none;padding:15px;border-bottom:1px solid var(--border)">
-      <form action="/KehadiranApp/public/hrd/shifts/store" method="POST">
+      <form action="<?= APP_URL ?>/hrd/shifts/store" method="POST">
         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
         <div class="mini-form">
           <div class="form-group"><label>Nama Shift</label><input type="text" name="name" class="form-control" required></div>
@@ -74,11 +74,11 @@ $activeTab = $tab ?? '';
           <td><?= $s['is_active']?'<span class="badge badge-success">Aktif</span>':'<span class="badge badge-danger">Nonaktif</span>' ?></td>
           <td><div style="display:flex;gap:5px">
             <button class="btn btn-outline btn-sm" onclick="toggleEdit('shift_<?= $s['id'] ?>')"><i class="fas fa-edit"></i></button>
-            <form action="/KehadiranApp/public/hrd/shifts/delete" method="POST" onsubmit="return confirm('Hapus jam kerja ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $s['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
+            <form action="<?= APP_URL ?>/hrd/shifts/delete" method="POST" onsubmit="return confirm('Hapus jam kerja ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $s['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
           </div></td>
         </tr>
         <tr id="shift_<?= $s['id'] ?>" style="display:none"><td colspan="8">
-          <form action="/KehadiranApp/public/hrd/shifts/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $s['id'] ?>">
+          <form action="<?= APP_URL ?>/hrd/shifts/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $s['id'] ?>">
             <div class="mini-form">
               <div class="form-group"><label>Nama</label><input type="text" name="name" class="form-control" value="<?= htmlspecialchars($s['name']) ?>" required></div>
               <div class="form-group"><label>Masuk</label><input type="time" name="start_time" class="form-control" value="<?= $s['start_time'] ?>" required></div>
@@ -104,7 +104,7 @@ $activeTab = $tab ?? '';
   </div>
   <div class="card-body" style="padding:0">
     <div id="formAddPos" style="display:none;padding:15px;border-bottom:1px solid var(--border)">
-      <form action="/KehadiranApp/public/hrd/positions/store" method="POST">
+      <form action="<?= APP_URL ?>/hrd/positions/store" method="POST">
         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
         <div class="mini-form">
           <div class="form-group"><label>Nama Jabatan</label><input type="text" name="name" class="form-control" required></div>
@@ -125,11 +125,11 @@ $activeTab = $tab ?? '';
           <td><?= $p['is_active']?'<span class="badge badge-success">Aktif</span>':'<span class="badge badge-danger">Nonaktif</span>' ?></td>
           <td><div style="display:flex;gap:5px">
             <button class="btn btn-outline btn-sm" onclick="toggleEdit('pos_<?= $p['id'] ?>')"><i class="fas fa-edit"></i></button>
-            <form action="/KehadiranApp/public/hrd/positions/delete" method="POST" onsubmit="return confirm('Hapus jabatan ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $p['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
+            <form action="<?= APP_URL ?>/hrd/positions/delete" method="POST" onsubmit="return confirm('Hapus jabatan ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $p['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
           </div></td>
         </tr>
         <tr id="pos_<?= $p['id'] ?>" style="display:none"><td colspan="7">
-          <form action="/KehadiranApp/public/hrd/positions/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $p['id'] ?>">
+          <form action="<?= APP_URL ?>/hrd/positions/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $p['id'] ?>">
             <div class="mini-form">
               <div class="form-group"><label>Nama</label><input type="text" name="name" class="form-control" value="<?= htmlspecialchars($p['name']) ?>" required></div>
               <div class="form-group"><label>Departemen</label><select name="department_id" class="form-control" required><?php foreach($departments as $d): ?><option value="<?= $d['id'] ?>" <?= $p['department_id']==$d['id']?'selected':'' ?>><?= htmlspecialchars($d['name']) ?></option><?php endforeach; ?></select></div>
@@ -153,7 +153,7 @@ $activeTab = $tab ?? '';
   </div>
   <div class="card-body" style="padding:0">
     <div id="formAddLate" style="display:none;padding:15px;border-bottom:1px solid var(--border)">
-      <form action="/KehadiranApp/public/hrd/late-rules/store" method="POST">
+      <form action="<?= APP_URL ?>/hrd/late-rules/store" method="POST">
         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
         <div class="mini-form">
           <div class="form-group"><label>Dari Menit</label><input type="number" name="min_minutes" class="form-control" required></div>
@@ -176,11 +176,11 @@ $activeTab = $tab ?? '';
           <td><?= htmlspecialchars($r['description'] ?? '-') ?></td>
           <td><div style="display:flex;gap:5px">
             <button class="btn btn-outline btn-sm" onclick="toggleEdit('late_<?= $r['id'] ?>')"><i class="fas fa-edit"></i></button>
-            <form action="/KehadiranApp/public/hrd/late-rules/delete" method="POST" onsubmit="return confirm('Hapus aturan ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $r['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
+            <form action="<?= APP_URL ?>/hrd/late-rules/delete" method="POST" onsubmit="return confirm('Hapus aturan ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $r['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
           </div></td>
         </tr>
         <tr id="late_<?= $r['id'] ?>" style="display:none"><td colspan="7">
-          <form action="/KehadiranApp/public/hrd/late-rules/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $r['id'] ?>">
+          <form action="<?= APP_URL ?>/hrd/late-rules/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $r['id'] ?>">
             <div class="mini-form">
               <div class="form-group"><label>Dari Menit</label><input type="number" name="min_minutes" class="form-control" value="<?= $r['min_minutes'] ?>" required></div>
               <div class="form-group"><label>Sampai Menit</label><input type="number" name="max_minutes" class="form-control" value="<?= $r['max_minutes'] ?>" required></div>
@@ -206,7 +206,7 @@ $activeTab = $tab ?? '';
   </div>
   <div class="card-body" style="padding:0">
     <div id="formAddLeave" style="display:none;padding:15px;border-bottom:1px solid var(--border)">
-      <form action="/KehadiranApp/public/hrd/leave-types/store" method="POST">
+      <form action="<?= APP_URL ?>/hrd/leave-types/store" method="POST">
         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
         <div class="mini-form">
           <div class="form-group"><label>Nama Cuti</label><input type="text" name="name" class="form-control" required placeholder="Cuti Melahirkan"></div>
@@ -228,11 +228,11 @@ $activeTab = $tab ?? '';
           <td><?= $lt['is_active']?'<span class="badge badge-success">Aktif</span>':'<span class="badge badge-danger">Nonaktif</span>' ?></td>
           <td><div style="display:flex;gap:5px">
             <button class="btn btn-outline btn-sm" onclick="toggleEdit('lv_<?= $lt['id'] ?>')"><i class="fas fa-edit"></i></button>
-            <form action="/KehadiranApp/public/hrd/leave-types/delete" method="POST" onsubmit="return confirm('Hapus jenis cuti ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $lt['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
+            <form action="<?= APP_URL ?>/hrd/leave-types/delete" method="POST" onsubmit="return confirm('Hapus jenis cuti ini?')"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $lt['id'] ?>"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color);border-color:var(--danger-color)"><i class="fas fa-trash"></i></button></form>
           </div></td>
         </tr>
         <tr id="lv_<?= $lt['id'] ?>" style="display:none"><td colspan="6">
-          <form action="/KehadiranApp/public/hrd/leave-types/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $lt['id'] ?>">
+          <form action="<?= APP_URL ?>/hrd/leave-types/update" method="POST"><input type="hidden" name="_token" value="<?= $csrf_token ?>"><input type="hidden" name="id" value="<?= $lt['id'] ?>">
             <div class="mini-form">
               <div class="form-group"><label>Nama</label><input type="text" name="name" class="form-control" value="<?= htmlspecialchars($lt['name']) ?>" required></div>
               <div class="form-group"><label>Hari</label><input type="number" name="max_days" class="form-control" value="<?= $lt['max_days'] ?>" required></div>

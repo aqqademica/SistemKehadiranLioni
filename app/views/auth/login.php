@@ -6,7 +6,7 @@
   <title>Login — KehadiranApp</title>
   <meta name="description" content="Sistem Informasi Kehadiran dan Penggajian">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="/KehadiranApp/public/css/app.css">
+  <link rel="stylesheet" href="<?= APP_URL ?>/css/app.css">
 </head>
 <body>
 
@@ -29,7 +29,7 @@
     <?php endif; ?>
 
     <!-- Form Login -->
-    <form method="POST" action="/KehadiranApp/public/login" id="loginForm">
+    <form method="POST" action="<?= APP_URL ?>/login" id="loginForm">
       <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf ?? '') ?>">
 
       <?php if (!empty($expired)): ?>

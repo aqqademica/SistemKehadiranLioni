@@ -64,7 +64,7 @@
                             </td>
                             <td><?= date('d M Y', strtotime($h['created_at'])) ?></td>
                             <td>
-                                <a href="/KehadiranApp/public/payroll/detail?id=<?= $h['id'] ?>" class="btn btn-outline btn-sm">
+                                <a href="<?= APP_URL ?>/payroll/detail?id=<?= $h['id'] ?>" class="btn btn-outline btn-sm">
                                     <i class="fas fa-eye"></i> Lihat Slip
                                 </a>
                             </td>

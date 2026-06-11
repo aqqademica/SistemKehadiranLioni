@@ -38,7 +38,7 @@
                             <td>
                                 <div style="display:flex; gap:5px;">
                                     <button class="btn btn-outline btn-sm" onclick='showPartnerModal(<?= json_encode($partner) ?>)'>Edit</button>
-                                    <form action="/KehadiranApp/public/hrd/health-partners/delete" method="POST" onsubmit="return confirm('Yakin ingin menghapus mitra ini?');" style="display:inline;">
+                                    <form action="<?= APP_URL ?>/hrd/health-partners/delete" method="POST" onsubmit="return confirm('Yakin ingin menghapus mitra ini?');" style="display:inline;">
                                         <input type="hidden" name="_token" value="<?= $csrf_token ?>">
                                         <input type="hidden" name="id" value="<?= $partner['id'] ?>">
                                         <button class="btn btn-danger btn-sm" type="submit">Hapus</button>
@@ -61,7 +61,7 @@
             <button class="btn btn-outline btn-sm" onclick="closePartnerModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="card-body">
-            <form id="pm_form" action="/KehadiranApp/public/hrd/health-partners/store" method="POST">
+            <form id="pm_form" action="<?= APP_URL ?>/hrd/health-partners/store" method="POST">
                 <input type="hidden" name="_token" value="<?= $csrf_token ?>">
                 <input type="hidden" name="id" id="pm_id">
                 

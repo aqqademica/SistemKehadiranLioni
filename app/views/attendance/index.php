@@ -5,7 +5,7 @@
     <div class="card-header">
         <div class="card-title"><i class="fas fa-calendar-alt"></i> Riwayat Kehadiran</div>
         <div class="card-actions">
-            <form method="GET" action="/KehadiranApp/public/attendance" style="display:flex;gap:10px">
+            <form method="GET" action="<?= APP_URL ?>/attendance" style="display:flex;gap:10px">
                 <select name="month" class="form-control" style="width:120px">
                     <?php for($m=1; $m<=12; $m++): ?>
                         <option value="<?= sprintf('%02d', $m) ?>" <?= $month == $m ? 'selected' : '' ?>>

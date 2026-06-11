@@ -6,7 +6,7 @@
         <div class="card-title"><i class="fas fa-camera"></i> Absensi Kamera / Lapangan</div>
     </div>
     <div class="card-body">
-        <form action="/KehadiranApp/public/attendance/camera" method="POST" enctype="multipart/form-data" id="cameraForm">
+        <form action="<?= APP_URL ?>/attendance/camera" method="POST" enctype="multipart/form-data" id="cameraForm">
             <input type="hidden" name="_token" value="<?= $csrf_token ?>">
             <input type="hidden" name="latitude" id="latitude">
             <input type="hidden" name="longitude" id="longitude">
