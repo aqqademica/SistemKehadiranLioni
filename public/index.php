@@ -120,8 +120,14 @@ $router->post('/payroll/close',              'PayrollController@closePeriod'); /
 // Dispatch
 // ============================================================
 $uri    = $_SERVER['REQUEST_URI'];
-$base   = parse_url(APP_URL, PHP_URL_PATH); // /KehadiranApp/public
-$uri    = substr($uri, strlen($base)) ?: '/';
+$base   = parse_url(APP_URL, PHP_URL_PATH) ?? '';
+if ($base && strpos($uri, $base) === 0) {
+    $uri = substr($uri, strlen($base));
+}
+if (strpos($uri, '/public') === 0) {
+    $uri = substr($uri, 7);
+}
+$uri = $uri ?: '/';
 $method = $_SERVER['REQUEST_METHOD'];
 
 $router->dispatch($uri, $method);
