@@ -17,9 +17,9 @@ class Database
     private function __construct()
     {
         $this->host   = $_ENV['DB_HOST'] ?? 'localhost';
-        $this->dbname = $_ENV['DB_NAME'] ?? 'kehadiran_app';
-        $this->user   = $_ENV['DB_USER'] ?? 'root';
-        $this->pass   = $_ENV['DB_PASS'] ?? '';
+        $this->dbname = $_ENV['DB_NAME'] ?? 'gere1931_kehadiranapp';
+        $this->user   = $_ENV['DB_USER'] ?? 'gere1931_kehadiranapp';
+        $this->pass   = $_ENV['DB_PASS'] ?? 'hiLdQmX6V2CfrfB';
 
         $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset={$this->charset}";
         $options = [
