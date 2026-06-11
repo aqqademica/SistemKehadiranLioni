@@ -169,26 +169,15 @@ if ($roleName === 'employee') {
       <div class="navbar-actions">
 
         <!-- Notification Button -->
-        <div style="position:relative">
-          <button class="navbar-btn" id="notifBtn" title="Notifikasi">
+        <div style="position:relative; margin-right:15px;">
+          <a href="/KehadiranApp/public/notifications" class="navbar-btn" title="Notifikasi" style="text-decoration:none;">
             <i class="fas fa-bell"></i>
             <?php if ($unreadCount > 0): ?>
-              <span class="notif-dot"></span>
+              <span class="notif-dot" id="notifCount"><?= $unreadCount > 99 ? '99+' : $unreadCount ?></span>
+            <?php else: ?>
+              <span class="notif-dot" id="notifCount" style="display:none;"></span>
             <?php endif; ?>
-          </button>
-          <!-- Notification Dropdown -->
-          <div class="notif-dropdown" id="notifPanel">
-            <div class="notif-header">
-              <span>Notifikasi</span>
-              <a href="/KehadiranApp/public/notifications" style="font-size:12px;color:var(--primary)">Lihat semua</a>
-            </div>
-            <div id="notifList">
-              <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">
-                <i class="fas fa-bell-slash" style="font-size:24px;margin-bottom:8px;display:block;opacity:0.4"></i>
-                Memuat notifikasi...
-              </div>
-            </div>
-          </div>
+          </a>
         </div>
 
         <!-- Employee Details -->

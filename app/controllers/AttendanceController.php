@@ -141,24 +141,13 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Logic Sederhana untuk menentukan Daily Status
-     * (Akan diperluas di Phase 2)
+     * [Fix 2.5] Use AttendanceService for proper lateness calculation
      */
     private function processDailyStatus(int $employeeId, string $date): void
     {
-        $finger = $this->attendanceModel->getFingerLog($employeeId, $date);
-        
-        $status = 'NO_LOG';
-        if ($finger['timestamp_in'] && $finger['timestamp_out']) {
-            $status = 'HADIR';
-        } elseif ($finger['timestamp_in'] || $finger['timestamp_out']) {
-            $status = 'PENDING'; // Menunggu verifikasi "Tidak Finger"
-        }
-
-        $this->attendanceModel->updateDailyStatus($employeeId, $date, [
-            'final_status' => $status,
-            'source'       => 'finger'
-        ]);
+        require_once APP_PATH . '/services/AttendanceService.php';
+        $service = new AttendanceService();
+        $service->resolveStatus($employeeId, $date);
     }
 
     /**

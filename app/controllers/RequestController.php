@@ -33,7 +33,7 @@ class RequestController extends Controller
                 $req['end_date'] = $detail['end_date'] ?? $req['attendance_date'];
             } else {
                 $req['start_date'] = $req['attendance_date'];
-                $req['end_date'] = $req['attendance_date']; // sakit usually 1 day or has upload_deadline, but let's assume attendance_date is start_date.
+                $req['end_date'] = $req['attendance_date'];
             }
         }
         
@@ -74,17 +74,19 @@ class RequestController extends Controller
         // Validasi 2 jam (Sesuai configApp2.md L155)
         // Note: Implementasi sederhana, asumsikan jam masuk 08:00
         $deadline = strtotime($date . ' 10:00:00');
+        $autoConvert = false;
         if (time() > $deadline) {
-            // Tetap boleh ajukan tapi mungkin ditandai atau auto-rejected/converted nantinya
+            // [Fix 7.1] Lebih dari 2 jam setelah kejadian → auto convert to hourly unpaid leave
+            $autoConvert = true;
         }
 
         $baseData = [
             'employee_id'     => $empId,
             'request_type'    => 'tidak_finger',
             'attendance_date' => $date,
-            'workflow_status' => 'pending_supervisor',
+            'workflow_status' => $autoConvert ? 'auto_converted' : 'pending_supervisor',
             'submitted_at'    => date('Y-m-d H:i:s'),
-            'notes'           => $reason
+            'notes'           => $reason . ($autoConvert ? ' [Auto-converted: submitted > 2 hours after event]' : '')
         ];
 
         $detailData = [
@@ -93,8 +95,20 @@ class RequestController extends Controller
         ];
 
         try {
-            $this->requestModel->createWithDetails($baseData, 'tidak_finger_requests', $detailData);
-            $this->flash('success', 'Pengajuan tidak finger berhasil dikirim.');
+            $requestId = $this->requestModel->createWithDetails($baseData, 'tidak_finger_requests', $detailData);
+            
+            // [Fix 7.1] If auto-converted, update daily attendance to HOURLY_UNPAID
+            if ($autoConvert) {
+                require_once APP_PATH . '/models/Attendance.php';
+                $attModel = new Attendance();
+                $attModel->updateDailyStatus($empId, $date, [
+                    'final_status' => 'HOURLY_UNPAID',
+                    'notes' => 'Auto-converted from tidak finger (submitted > 2 hours after event)'
+                ]);
+                $this->flash('warning', 'Pengajuan otomatis dikonversi menjadi Hourly Unpaid Leave karena diajukan lebih dari 2 jam setelah kejadian.');
+            } else {
+                $this->flash('success', 'Pengajuan tidak finger berhasil dikirim.');
+            }
         } catch (Exception $e) {
             $this->flash('danger', 'Gagal mengirim pengajuan.');
         }
@@ -111,10 +125,17 @@ class RequestController extends Controller
         
         $healthPartners = $this->db->query("SELECT * FROM health_partners WHERE is_active = 1 ORDER BY name ASC")->fetchAll();
         
+        // [Fix 7.5] Ambil saldo cuti untuk validasi di form
+        $leaveBalance = $this->db->query(
+            "SELECT * FROM employee_leave_balances WHERE employee_id = ? AND year = ?",
+            [$_SESSION['employee_id'], date('Y')]
+        )->fetch();
+
         $this->render('requests.form_leave', [
             'pageTitle'  => 'Pengajuan Leave/Cuti',
             'activePage' => '/KehadiranApp/public/requests',
             'healthPartners' => $healthPartners,
+            'leaveBalance' => $leaveBalance,
             'csrf_token' => $this->generateCsrf()
         ]);
     }
@@ -134,6 +155,25 @@ class RequestController extends Controller
         $reason = $this->input('reason');
         
         $days  = (strtotime($end) - strtotime($start)) / (60 * 60 * 24) + 1;
+
+        // [Fix 7.5] Validasi saldo cuti untuk paid_leave
+        if ($requestType === 'paid_leave') {
+            $isHalfDay = $this->inputInt('is_half_day', 0);
+            $effectiveDays = $isHalfDay ? 0.5 : $days;
+
+            $balance = $this->db->query(
+                "SELECT remaining_days FROM employee_leave_balances WHERE employee_id = ? AND year = ?",
+                [$empId, date('Y')]
+            )->fetch();
+
+            // [Fix 7.4] Check if this is a legal leave (doesn't deduct from annual balance)
+            $leaveType = $this->input('leave_type', 'annual');
+            if ($leaveType !== 'legal' && $balance && $effectiveDays > (float)$balance['remaining_days']) {
+                $this->flash('danger', "Saldo cuti tidak mencukupi. Tersisa: {$balance['remaining_days']} hari, diminta: {$effectiveDays} hari.");
+                $this->redirect('requests/leave');
+                return;
+            }
+        }
 
         $baseData = [
             'employee_id'     => $empId,
@@ -200,24 +240,101 @@ class RequestController extends Controller
             } else {
                 // paid_leave or tidak_hadir -> put to leave_requests
                 $detailTable = 'leave_requests';
+                
+                // [Fix 7.3 & 7.4] Handle leave_type, half-day, and legal leave
+                $leaveType = $this->input('leave_type', 'annual');
+                $isHalfDay = $this->inputInt('is_half_day', 0);
+                $halfDayPeriod = $this->input('half_day_period');
+                $legalType = $this->input('legal_type');
+
+                $effectiveDays = $days;
+                if ($isHalfDay) {
+                    $effectiveDays = 0.5;
+                }
+                
                 $detailData = [
-                    'leave_type' => 'annual', // Default since ENUM only has annual, half_day, legal
-                    'start_date' => $start,
-                    'end_date'   => $end,
-                    'total_days' => $days,
-                    'reason'     => $reason
+                    'leave_type'      => $leaveType,
+                    'legal_type'      => ($leaveType === 'legal') ? $legalType : null,
+                    'is_half_day'     => $isHalfDay,
+                    'half_day_period' => $isHalfDay ? $halfDayPeriod : null,
+                    'start_date'      => $start,
+                    'end_date'        => $end,
+                    'total_days'      => $effectiveDays,
+                    'reason'          => $reason
                 ];
             }
 
             if ($detailTable) {
                 $this->requestModel->createWithDetails($baseData, $detailTable, $detailData);
             } else {
-                $this->requestModel->insert($baseData); // Fallback if no details
+                $this->requestModel->create($baseData);
             }
             
             $this->flash('success', 'Pengajuan berhasil dikirim.');
         } catch (Exception $e) {
             $this->flash('danger', 'Gagal mengirim pengajuan: ' . $e->getMessage());
+        }
+
+        $this->redirect('requests');
+    }
+
+    /**
+     * Form Pengajuan Lembur (Overtime)
+     */
+    public function createOvertime(): void
+    {
+        $this->requireLogin();
+        $this->render('requests.form_overtime', [
+            'pageTitle'  => 'Pengajuan Lembur',
+            'activePage' => '/KehadiranApp/public/requests',
+            'csrf_token' => $this->generateCsrf()
+        ]);
+    }
+
+    /**
+     * Simpan Pengajuan Lembur
+     */
+    public function storeOvertime(): void
+    {
+        $this->requireLogin();
+        $this->verifyCsrf();
+        
+        $empId = $_SESSION['employee_id'];
+        $date  = $this->input('attendance_date');
+        $start = $this->input('start_time');
+        $end   = $this->input('end_time');
+        $reason = $this->input('reason');
+        
+        // Hitung jam (sederhana)
+        $hours = (strtotime($end) - strtotime($start)) / 3600;
+        if ($hours <= 0) {
+            $this->flash('danger', 'Waktu selesai harus lebih besar dari waktu mulai.');
+            $this->redirect('requests/overtime');
+            return;
+        }
+
+        $baseData = [
+            'employee_id'     => $empId,
+            'request_type'    => 'overtime',
+            'attendance_date' => $date,
+            'workflow_status' => 'pending_supervisor',
+            'submitted_at'    => date('Y-m-d H:i:s'),
+            'notes'           => $reason
+        ];
+
+        $detailData = [
+            'overtime_date' => $date,
+            'start_time'    => $start,
+            'end_time'      => $end,
+            'hours'         => $hours,
+            'reason'        => $reason
+        ];
+
+        try {
+            $this->requestModel->createWithDetails($baseData, 'overtime_requests', $detailData);
+            $this->flash('success', 'Pengajuan lembur berhasil dikirim.');
+        } catch (Exception $e) {
+            $this->flash('danger', 'Gagal mengirim pengajuan lembur: ' . $e->getMessage());
         }
 
         $this->redirect('requests');
@@ -346,6 +463,7 @@ class RequestController extends Controller
 
     /**
      * Proses Approval / Rejection
+     * [Fix 1.2] Use model approve with override; [Fix 1.3] Use model reject
      */
     public function processApproval(): void
     {
@@ -360,13 +478,14 @@ class RequestController extends Controller
         if (!in_array($decision, ['approve', 'reject'])) {
             $this->flash('danger', 'Keputusan tidak valid.');
             $this->redirect('requests/approvals');
+            return;
         }
 
         $success = false;
         if ($decision === 'approve') {
             $request = $this->requestModel->find($requestId);
             
-            // Logika Verifikasi Sakit oleh HRD
+            // [Fix 1.2] Determine status override BEFORE calling approve()
             $statusOverride = null;
             if ($request['request_type'] === 'sakit' && $role === 'hrd_admin') {
                 $partnerId = $this->inputInt('health_partner_id');
@@ -380,25 +499,12 @@ class RequestController extends Controller
                 }
             }
 
-            $success = $this->requestModel->approve($requestId, $_SESSION['user_id'], $role, $notes);
-            
-            // Override status jika ada logika khusus
-            if ($success && $statusOverride) {
-                $this->requestModel->update($requestId, ['workflow_status' => $statusOverride]);
-                $request['workflow_status'] = $statusOverride; // Update local variable for next checks
-            }
+            // [Fix 1.2] Pass statusOverride into model — single atomic transaction
+            $success = $this->requestModel->approve($requestId, $_SESSION['user_id'], $role, $notes, $statusOverride);
             
         } else {
-            $success = $this->requestModel->update($requestId, [
-                'workflow_status' => 'rejected',
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-            // Catat log rejection
-            $this->db->query(
-                "INSERT INTO request_approvals (request_id, approver_id, role, decision, notes) 
-                 VALUES (?, ?, ?, 'reject', ?)",
-                [$requestId, $_SESSION['user_id'], $role, $notes]
-            );
+            // [Fix 1.3] Use model reject method (transactional)
+            $success = $this->requestModel->reject($requestId, $_SESSION['user_id'], $role, $notes);
         }
 
         if ($success) {
@@ -428,7 +534,7 @@ class RequestController extends Controller
                 $this->finalizeAttendanceStatus($request);
             }
         } else {
-            $this->flash('danger', 'Gagal memproses pengajuan.');
+            $this->flash('danger', 'Gagal memproses pengajuan. Pastikan Anda memiliki hak akses yang sesuai.');
         }
 
         $this->redirect('requests/approvals');
@@ -436,6 +542,8 @@ class RequestController extends Controller
 
     /**
      * Finalisasi status kehadiran harian setelah pengajuan disetujui
+     * [Fix 2.4] Handle multi-day leave by looping dates
+     * [Fix 1.5] Deduct leave balance on paid_leave approval
      */
     private function finalizeAttendanceStatus(array $request): void
     {
@@ -448,12 +556,63 @@ class RequestController extends Controller
             'tidak_hadir'  => 'UNPAID_DENGAN',
             'sakit'        => 'SAKIT',
             'hourly_leave' => 'HOURLY_UNPAID',
+            'overtime'     => 'HADIR', // Overtime makes them present (assuming they were, or it just adds hours)
             default        => 'HADIR'
         };
 
-        $attModel->updateDailyStatus($request['employee_id'], $request['attendance_date'], [
+        // [Fix 2.4] For multi-day requests (paid_leave, tidak_hadir), loop through all dates
+        if (in_array($request['request_type'], ['paid_leave', 'tidak_hadir'])) {
+            $leaveDetail = $this->db->query(
+                "SELECT start_date, end_date, total_days FROM leave_requests WHERE request_id = ?",
+                [$request['id']]
+            )->fetch();
+
+            if ($leaveDetail) {
+                $current = strtotime($leaveDetail['start_date']);
+                $end = strtotime($leaveDetail['end_date']);
+
+                while ($current <= $end) {
+                    $dayOfWeek = (int)date('N', $current);
+                    if ($dayOfWeek <= 5) { // Skip weekend
+                        $dateStr = date('Y-m-d', $current);
+                        $attModel->updateDailyStatus($request['employee_id'], $dateStr, [
+                            'final_status' => $status,
+                            'notes'        => 'Approved via ' . $request['request_type'] . ' request #' . $request['id']
+                        ]);
+                    }
+                    $current = strtotime('+1 day', $current);
+                }
+
+                // [Fix 1.5] Deduct leave balance for paid_leave
+                if ($request['request_type'] === 'paid_leave') {
+                    $totalDays = (float)$leaveDetail['total_days'];
+                    $year = date('Y', strtotime($leaveDetail['start_date']));
+                    $this->db->query(
+                        "UPDATE employee_leave_balances 
+                         SET used_days = used_days + ?, remaining_days = remaining_days - ?, updated_at = NOW()
+                         WHERE employee_id = ? AND year = ?",
+                        [$totalDays, $totalDays, $request['employee_id'], $year]
+                    );
+                }
+
+                return; // Already handled all dates
+            }
+        }
+
+        $data = [
             'final_status' => $status,
-            'notes'        => 'Approved via ' . $request['request_type'] . ' request'
-        ]);
+            'notes'        => 'Approved via ' . $request['request_type'] . ' request #' . $request['id']
+        ];
+
+        // [Fix 7.6] For overtime, set the overtime_hours
+        if ($request['request_type'] === 'overtime') {
+            $overtime = $this->db->query("SELECT hours FROM overtime_requests WHERE request_id = ?", [$request['id']])->fetch();
+            if ($overtime) {
+                $data['overtime_hours'] = $overtime['hours'];
+            }
+        }
+
+        // Single-date requests (tidak_finger, hourly_leave, sakit, overtime, etc.)
+        $attModel->updateDailyStatus($request['employee_id'], $request['attendance_date'], $data);
     }
 }

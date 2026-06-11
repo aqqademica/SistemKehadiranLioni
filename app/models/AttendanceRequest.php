@@ -76,15 +76,47 @@ class AttendanceRequest extends Model
     }
 
     /**
-     * Proses Approval
+     * [Fix 1.4] Validasi apakah role approver cocok dengan workflow_status saat ini
      */
-    public function approve(int $requestId, int $approverId, string $role, string $notes = ''): bool
+    public function validateApproverRole(string $workflowStatus, string $role, string $requestType): bool
+    {
+        $expectedRole = match($workflowStatus) {
+            'pending_supervisor' => 'supervisor',
+            'pending_hrd'       => 'hrd_admin',
+            'pending_manager'   => 'hrd_manager',
+            default             => null
+        };
+
+        if ($expectedRole === null) return false;
+
+        // [Fix 1.1] Supervisor tidak boleh approve sakit — sakit langsung ke HRD
+        if ($role === 'supervisor' && $requestType === 'sakit') return false;
+
+        return $role === $expectedRole;
+    }
+
+    /**
+     * Proses Approval — [Fix 1.2] Accepts optional status override to prevent double-write
+     */
+    public function approve(int $requestId, int $approverId, string $role, string $notes = '', ?string $statusOverride = null): bool
     {
         try {
             $this->db->beginTransaction();
             
             $request = $this->find($requestId);
-            $nextStatus = $this->determineNextStatus($request['request_type'], $role, 'approve');
+            if (!$request) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // [Fix 1.4] Validate role matches workflow step
+            if (!$this->validateApproverRole($request['workflow_status'], $role, $request['request_type'])) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // [Fix 1.2] Use override if provided, otherwise determine from rules
+            $nextStatus = $statusOverride ?: $this->determineNextStatus($request['request_type'], $role, 'approve');
             
             // Catat approval
             $this->db->query(
@@ -108,14 +140,56 @@ class AttendanceRequest extends Model
     }
 
     /**
+     * [Fix 1.3] Proses Rejection — dalam transaction untuk audit consistency
+     */
+    public function reject(int $requestId, int $approverId, string $role, string $notes = ''): bool
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $request = $this->find($requestId);
+            if (!$request) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // [Fix 1.4] Validate role matches workflow step
+            if (!$this->validateApproverRole($request['workflow_status'], $role, $request['request_type'])) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // Catat rejection
+            $this->db->query(
+                "INSERT INTO request_approvals (request_id, approver_id, role, decision, notes) 
+                 VALUES (?, ?, ?, 'reject', ?)",
+                [$requestId, $approverId, $role, $notes]
+            );
+
+            // Update status
+            $this->update($requestId, [
+                'workflow_status' => 'rejected',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+
+    /**
      * Tentukan status berikutnya berdasarkan role dan jenis pengajuan
+     * [Fix 1.1] Removed supervisor+sakit => approved path
      */
     private function determineNextStatus(string $type, string $role, string $decision): string
     {
         if ($decision === 'reject') return 'rejected';
 
         if ($role === 'supervisor') {
-            if ($type === 'sakit') return 'approved'; // Sakit langsung HRD biasanya, tapi di sini supervisor cuma monitor
+            // Supervisor tidak handle sakit — should never reach here due to validation
             return 'pending_hrd';
         }
 

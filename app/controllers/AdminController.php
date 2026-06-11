@@ -7,6 +7,7 @@ class AdminController extends Controller
     public function syncAttendance(): void
     {
         $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $this->verifyCsrf(); // [Fix 5.3] Added CSRF since route is now POST
         
         require_once APP_PATH . '/services/AttendanceService.php';
         require_once APP_PATH . '/services/DisciplineService.php';
@@ -18,11 +19,12 @@ class AdminController extends Controller
         
         $results = $service->processDaily($date);
         
-        // Cek WL untuk semua yang diproses
+        // Cek WL untuk semua yang diproses [Fix 4.4: pass actual user_id]
         $employees = $this->db->query("SELECT id FROM employees WHERE employment_status = 'active'")->fetchAll();
         $wlIssued = 0;
+        $issuerId = (int) ($_SESSION['user_id'] ?? 0);
         foreach ($employees as $emp) {
-            $res = $discipline->checkAndIssueWL($emp['id']);
+            $res = $discipline->checkAndIssueWL($emp['id'], $issuerId);
             if ($res && strpos($res, 'Issued') !== false) $wlIssued++;
         }
 
@@ -551,6 +553,7 @@ class AdminController extends Controller
     public function deleteEmployee(): void
     {
         $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $this->verifyCsrf(); // [Fix 5.2] Added CSRF verification
         $id = $this->inputInt('id');
 
         try {

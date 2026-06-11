@@ -142,4 +142,88 @@ class HrConfigController extends Controller
         }
         $this->redirect('hrd-manager/salary-config?tab=deductions');
     }
+
+    // ============================================================
+    // SHIFTS & WORKING HOURS CONFIGURATION
+    // ============================================================
+
+    public function shiftConfig(): void
+    {
+        $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $tab = $this->input('tab', 'shifts');
+
+        $shifts = $this->db->query("SELECT * FROM shifts ORDER BY start_time ASC")->fetchAll();
+        $positions = $this->db->query("SELECT * FROM positions ORDER BY name ASC")->fetchAll();
+        $positionShifts = $this->db->query(
+            "SELECT ps.*, p.name as position_name, s.name as shift_name 
+             FROM position_shifts ps 
+             JOIN positions p ON p.id = ps.position_id 
+             JOIN shifts s ON s.id = ps.shift_id 
+             ORDER BY p.name ASC"
+        )->fetchAll();
+
+        $workWeekTypeRow = $this->db->query("SELECT * FROM system_settings WHERE `key` = 'work_week_type'")->fetch();
+        $workWeekType = $workWeekTypeRow ? $workWeekTypeRow['value'] : 5;
+
+        $this->render('hr.shift_config', [
+            'pageTitle'          => 'Konfigurasi Shift & Jam Kerja',
+            'activePage'         => '/KehadiranApp/public/hrd/shift-config',
+            'tab'                => $tab,
+            'shifts'             => $shifts,
+            'positions'          => $positions,
+            'positionShifts'     => $positionShifts,
+            'workWeekType'       => $workWeekType,
+            'csrf_token'         => $this->generateCsrf()
+        ]);
+    }
+
+    public function storeShift(): void
+    {
+        $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $this->verifyCsrf();
+        try {
+            $this->db->query(
+                "INSERT INTO shifts (name, start_time, end_time) VALUES (?, ?, ?)",
+                [$this->input('name'), $this->input('start_time'), $this->input('end_time')]
+            );
+            $this->flash('success', 'Shift berhasil ditambahkan.');
+        } catch (Exception $e) {
+            $this->flash('danger', 'Gagal: ' . $e->getMessage());
+        }
+        $this->redirect('hrd/shift-config?tab=shifts');
+    }
+
+    public function storePositionShift(): void
+    {
+        $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $this->verifyCsrf();
+        try {
+            // Upsert / ON DUPLICATE KEY UPDATE is easier since position_id is UNIQUE
+            $this->db->query(
+                "INSERT INTO position_shifts (position_id, shift_id) VALUES (?, ?) 
+                 ON DUPLICATE KEY UPDATE shift_id = VALUES(shift_id)",
+                [$this->inputInt('position_id'), $this->inputInt('shift_id')]
+            );
+            $this->flash('success', 'Shift berhasil di-assign ke Jabatan.');
+        } catch (Exception $e) {
+            $this->flash('danger', 'Gagal: ' . $e->getMessage());
+        }
+        $this->redirect('hrd/shift-config?tab=positions');
+    }
+
+    public function updateWorkWeekType(): void
+    {
+        $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $this->verifyCsrf();
+        try {
+            $type = $this->inputInt('work_week_type');
+            if (in_array($type, [5, 6])) {
+                $this->db->query("UPDATE system_settings SET value = ? WHERE `key` = 'work_week_type'", [$type]);
+                $this->flash('success', 'Sistem hari kerja berhasil diperbarui.');
+            }
+        } catch (Exception $e) {
+            $this->flash('danger', 'Gagal: ' . $e->getMessage());
+        }
+        $this->redirect('hrd/shift-config?tab=settings');
+    }
 }

@@ -93,12 +93,14 @@ class Controller
     }
 
     // Generate CSRF token
+    /**
+     * [Fix 5.1] Generate CSRF token — regenerate on every form render
+     */
     protected function generateCsrf(): string
     {
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-        return $_SESSION['csrf_token'];
+        $token = bin2hex(random_bytes(32));
+        $_SESSION['csrf_token'] = $token;
+        return $token;
     }
 
     // Sanitasi input

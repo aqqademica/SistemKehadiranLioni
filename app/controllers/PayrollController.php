@@ -103,10 +103,57 @@ class PayrollController extends Controller
             [$empId]
         )->fetchAll();
 
+        // Ambil Open Period (Periode yang belum ditutup)
+        $openPeriod = $this->payrollModel->getOpenPeriod();
+        $runningOvertimeHours = 0;
+        
+        if ($openPeriod) {
+            $runningOvertimeHours = $this->db->query(
+                "SELECT COALESCE(SUM(overtime_hours), 0) 
+                 FROM daily_attendance_status 
+                 WHERE employee_id = ? AND attendance_date BETWEEN ? AND ?",
+                [$empId, $openPeriod['start_date'], $openPeriod['end_date']]
+            )->fetchColumn();
+        }
+
         $this->render('payroll.my_history', [
-            'pageTitle'  => 'Riwayat Gaji',
+            'pageTitle'  => 'Riwayat Gaji & Lembur',
             'activePage' => '/KehadiranApp/public/my-salary',
-            'history'    => $history
+            'history'    => $history,
+            'openPeriod' => $openPeriod,
+            'runningOvertimeHours' => $runningOvertimeHours
         ]);
+    }
+
+    /**
+     * [Fix 7.7] Tutup/kunci periode payroll
+     */
+    public function closePeriod(): void
+    {
+        $this->requireRole(['hrd_manager']);
+        $this->verifyCsrf();
+
+        $periodId = $this->inputInt('period_id');
+
+        try {
+            $period = $this->db->query("SELECT * FROM payroll_periods WHERE id = ?", [$periodId])->fetch();
+            if (!$period) throw new Exception("Periode tidak ditemukan.");
+            if ($period['status'] === 'closed') throw new Exception("Periode sudah ditutup.");
+
+            // Verify there is at least one payroll run
+            $runs = $this->db->query("SELECT COUNT(*) FROM payroll_runs WHERE period_id = ?", [$periodId])->fetchColumn();
+            if ($runs == 0) throw new Exception("Tidak ada kalkulasi payroll untuk periode ini. Jalankan payroll terlebih dahulu.");
+
+            $this->db->query(
+                "UPDATE payroll_periods SET status = 'closed', closed_by = ?, closed_at = NOW() WHERE id = ?",
+                [$_SESSION['user_id'], $periodId]
+            );
+
+            $this->flash('success', "Periode payroll {$period['month']}/{$period['year']} berhasil ditutup.");
+        } catch (Exception $e) {
+            $this->flash('danger', 'Gagal menutup periode: ' . $e->getMessage());
+        }
+
+        $this->redirect('payroll');
     }
 }

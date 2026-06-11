@@ -1,11 +1,45 @@
 <?php
 // app/views/payroll/my_history.php
 ?>
-<div class="card">
-    <div class="card-header">
-        <div class="card-title"><i class="fas fa-history"></i> Riwayat Gaji & Slip</div>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-0 text-gray-800">Riwayat Gaji & Lembur</h2>
+        </div>
     </div>
-    <div class="card-body" style="padding:0">
+
+    <!-- Running Overtime Card -->
+    <?php if (isset($openPeriod) && $openPeriod): ?>
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Lembur Berjalan (<?= date('M Y', strtotime($openPeriod['start_date'])) ?>)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <?= number_format($runningOvertimeHours, 1) ?> Jam
+                            </div>
+                            <small class="text-muted">Total jam lembur yang disetujui periode ini (Belum dibayarkan).</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-history"></i> Riwayat Slip Gaji</h6>
+        </div>
+        <div class="card-body" style="padding:0">
         <?php if (empty($history)): ?>
             <div style="padding:40px; text-align:center; color:var(--text-muted);">
                 <i class="fas fa-receipt" style="font-size:40px; opacity:0.2; display:block; margin-bottom:12px;"></i>
@@ -41,3 +75,4 @@
         <?php endif; ?>
     </div>
 </div>
+</div> <!-- End Container -->

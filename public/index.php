@@ -48,19 +48,20 @@ $router->post('/attendance/finger', 'AttendanceController@logFinger');
 $router->get('/attendance/camera',  'AttendanceController@camera');
 $router->post('/attendance/camera', 'AttendanceController@logCamera');
 
-// Requests
 $router->get('/requests',                    'RequestController@index');
 $router->get('/requests/tidak-finger',       'RequestController@createTidakFinger');
 $router->post('/requests/tidak-finger',      'RequestController@storeTidakFinger');
 $router->get('/requests/leave',              'RequestController@createLeave');
 $router->post('/requests/leave',             'RequestController@storeLeave');
+$router->get('/requests/overtime',           'RequestController@createOvertime');
+$router->post('/requests/overtime',          'RequestController@storeOvertime');
 $router->post('/requests/cancel',            'RequestController@cancelRequest');
 $router->post('/requests/update-leave',      'RequestController@updateLeave');
 $router->get('/requests/approvals',          'RequestController@approvals');
 $router->post('/requests/approvals',         'RequestController@processApproval');
 
 // Admin
-$router->get('/admin/sync',                  'AdminController@syncAttendance');
+$router->post('/admin/sync',                  'AdminController@syncAttendance'); // [Fix 5.3] Changed from GET to POST
 $router->get('/admin/employees',             'AdminController@employees');
 $router->get('/admin/employees/create',      'AdminController@createEmployee');
 $router->post('/admin/employees/store',      'AdminController@storeEmployee');
@@ -90,15 +91,20 @@ $router->get('/hrd/accounts/search',         'AdminController@searchEmployeeNoAc
 $router->post('/hrd/accounts/store',         'AdminController@storeAccount');
 $router->post('/hrd/accounts/update',        'AdminController@updateAccount');
 
-// HRD Manager Salary Config
-$router->get('/hrd-manager/salary-config',                   'HrConfigController@salaryConfig');
-$router->post('/hrd-manager/salary-config/position/store',   'HrConfigController@storePositionSalary');
-$router->post('/hrd-manager/salary-config/position/update',  'HrConfigController@updatePositionSalary');
-$router->post('/hrd-manager/salary-config/position/delete',  'HrConfigController@deletePositionSalary');
-$router->post('/hrd-manager/salary-config/overtime/update',  'HrConfigController@updateOvertimeDivider');
-$router->post('/hrd-manager/salary-config/deduction/store',  'HrConfigController@storeGlobalDeduction');
-$router->post('/hrd-manager/salary-config/deduction/update', 'HrConfigController@updateGlobalDeduction');
-$router->post('/hrd-manager/salary-config/deduction/delete', 'HrConfigController@deleteGlobalDeduction');
+// HRD Config (Shift & Salary)
+$router->get('/hrd-manager/salary-config',   'HrConfigController@salaryConfig');
+$router->post('/hrd-manager/store-pos-salary','HrConfigController@storePositionSalary');
+$router->post('/hrd-manager/update-pos-salary','HrConfigController@updatePositionSalary');
+$router->post('/hrd-manager/delete-pos-salary','HrConfigController@deletePositionSalary');
+$router->post('/hrd-manager/update-ot-div',   'HrConfigController@updateOvertimeDivider');
+$router->post('/hrd-manager/store-deduction', 'HrConfigController@storeGlobalDeduction');
+$router->post('/hrd-manager/update-deduction','HrConfigController@updateGlobalDeduction');
+$router->post('/hrd-manager/delete-deduction','HrConfigController@deleteGlobalDeduction');
+
+$router->get('/hrd/shift-config',           'HrConfigController@shiftConfig');
+$router->post('/hrd/store-shift',           'HrConfigController@storeShift');
+$router->post('/hrd/store-position-shift',  'HrConfigController@storePositionShift');
+$router->post('/hrd/update-work-week',      'HrConfigController@updateWorkWeekType');
 
 // Notifications
 $router->get('/notifications',               'NotificationController@index');
@@ -108,6 +114,7 @@ $router->get('/payroll',                    'PayrollController@index');
 $router->post('/payroll/run',               'PayrollController@run');
 $router->get('/payroll/detail',             'PayrollController@detail');
 $router->get('/my-salary',                  'PayrollController@mySalary');
+$router->post('/payroll/close',              'PayrollController@closePeriod'); // [Fix 7.7] Close/lock payroll period
 
 // ============================================================
 // Dispatch

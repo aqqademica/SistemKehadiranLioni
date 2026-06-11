@@ -14,7 +14,21 @@
         <?php else: ?>
             <div style="display:flex; flex-direction:column;">
                 <?php foreach ($notifications as $notif): ?>
-                    <div style="padding: 15px 20px; border-bottom: 1px solid var(--border-color); display:flex; gap:15px; align-items:flex-start; background: <?= $notif['is_read'] ? 'transparent' : '#f8f9fa' ?>">
+                    <?php
+                        $link = '#';
+                        if ($notif['related_type'] === 'leave') {
+                            $link = '/KehadiranApp/public/requests/leave';
+                        } elseif ($notif['related_type'] === 'tidak_finger') {
+                            $link = '/KehadiranApp/public/requests/tidak-finger';
+                        } elseif ($notif['related_type'] === 'overtime') {
+                            $link = '/KehadiranApp/public/requests/overtime';
+                        } elseif ($notif['related_type'] === 'payroll') {
+                            $link = '/KehadiranApp/public/my-salary';
+                        } elseif ($notif['related_type'] === 'warning_letter') {
+                            $link = '/KehadiranApp/public/dashboard';
+                        }
+                    ?>
+                    <a href="<?= $link ?>" style="text-decoration:none; padding: 15px 20px; border-bottom: 1px solid var(--border-color); display:flex; gap:15px; align-items:flex-start; background: <?= $notif['is_read'] ? 'transparent' : '#f8f9fa' ?>; transition: background 0.2s;">
                         <?php
                             $iconColor = match($notif['type']) {
                                 'success' => 'var(--success-color)',
@@ -43,7 +57,7 @@
                                 <i class="fas fa-clock"></i> <?= date('d M Y H:i', strtotime($notif['created_at'])) ?>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
