@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/gere1931/public_html/internalsys.my.id/
+    - /bin/cp -R * $DEPLOYPATH
