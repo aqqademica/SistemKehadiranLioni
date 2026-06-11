@@ -1,7 +1,7 @@
 Options -Indexes
 
 RewriteEngine On
-RewriteBase /KehadiranApp/public/
+# RewriteBase /KehadiranApp/public/ (Aktifkan dan sesuaikan jika aplikasi berada di dalam sub-folder di hosting)
 
 # Arahkan semua request ke index.php kecuali file/folder yang sudah ada
 RewriteCond %{REQUEST_FILENAME} !-f
