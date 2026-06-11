@@ -80,19 +80,7 @@
       </button>
     </form>
 
-    <!-- Info default creds (dev only, hapus saat production) -->
-    <div style="margin-top:28px;padding:14px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;font-size:12px;color:var(--text-muted)">
-      <div style="color:var(--primary);font-weight:600;margin-bottom:8px"><i class="fas fa-info-circle"></i> Demo Credentials</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">
-        <span>Manager HRD:</span>   <span style="color:var(--text-light)">MGR001_Budi_Santoso</span>
-        <span>Admin HRD:</span>     <span style="color:var(--text-light)">HRD001_Siti_Rahayu</span>
-        <span>Payroll:</span>       <span style="color:var(--text-light)">PAY001_Agus_Wijaya</span>
-        <span>Supervisor:</span>    <span style="color:var(--text-light)">SPV001_Dian_Pratama</span>
-        <span>Karyawan:</span>      <span style="color:var(--text-light)">EMP001_Ahmad_Fauzi</span>
-        <span>Password (admin):</span>  <span style="color:var(--warning)">Admin@1234</span>
-        <span>Password (emp):</span><span style="color:var(--warning)">Karyawan@1234</span>
-      </div>
-    </div>
+
 
     <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--text-muted)">
       <a href="#" onclick="showForgotModal()" style="color:var(--primary); text-decoration:none;">Lupa password? Pengajuan Reset Password.</a>

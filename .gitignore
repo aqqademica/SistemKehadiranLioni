@@ -11,3 +11,5 @@ public/uploads/documents/*
 Thumbs.db
 desktop.ini
 *.log
+
+.env

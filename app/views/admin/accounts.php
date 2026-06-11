@@ -93,8 +93,8 @@
 
                 <div class="form-group mb-4">
                     <label>Password Awal</label>
-                    <input type="password" name="password" class="form-control" required minlength="6">
-                    <small class="text-muted">Username akan digenerate otomatis menggunakan format <strong>ID_NamaDepan_NamaBelakang</strong>.</small>
+                    <input type="text" name="password" class="form-control" value="123!" readonly>
+                    <small class="text-muted">Username akan digenerate otomatis menggunakan format <strong>ID_NamaDepan_NamaBelakang</strong>. Password disetel ke default <strong>123!</strong></small>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px;">

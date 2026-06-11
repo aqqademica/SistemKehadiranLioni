@@ -8,14 +8,19 @@ class Database
     private static ?Database $instance = null;
     private PDO $pdo;
 
-    private string $host   = 'localhost';
-    private string $dbname = 'kehadiran_app';
-    private string $user   = 'root';
-    private string $pass   = '';
+    private string $host;
+    private string $dbname;
+    private string $user;
+    private string $pass;
     private string $charset = 'utf8mb4';
 
     private function __construct()
     {
+        $this->host   = $_ENV['DB_HOST'] ?? 'localhost';
+        $this->dbname = $_ENV['DB_NAME'] ?? 'kehadiran_app';
+        $this->user   = $_ENV['DB_USER'] ?? 'root';
+        $this->pass   = $_ENV['DB_PASS'] ?? '';
+
         $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset={$this->charset}";
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

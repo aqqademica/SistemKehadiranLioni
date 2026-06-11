@@ -609,9 +609,9 @@ class AdminController extends Controller
         $this->requireRole(['hrd_admin', 'hrd_manager']);
         $this->verifyCsrf();
         
-        $empId = $this->inputInt('employee_id');
-        $roleId = $this->inputInt('role_id');
-        $password = $this->input('password');
+        $empId    = (int)($_POST['employee_id'] ?? 0);
+        $roleId   = (int)($_POST['role_id'] ?? 0);
+        $password = '123!';
 
         if (!$empId || !$roleId || !$password) {
             $this->flash('danger', 'Semua form wajib diisi.');

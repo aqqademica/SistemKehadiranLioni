@@ -3,10 +3,14 @@
 // Konfigurasi Utama Aplikasi KehadiranApp
 // ============================================================
 
+// Setup Env
+require_once dirname(__DIR__) . '/core/Env.php';
+Env::load(dirname(__DIR__) . '/.env');
+
 define('APP_NAME',    'KehadiranApp');
 define('APP_VERSION', '1.0.0');
-define('APP_URL',     'http://localhost/KehadiranApp/public');
-define('APP_ENV',     'development'); // 'production' saat live
+define('APP_URL',     $_ENV['APP_URL'] ?? 'http://localhost/KehadiranApp/public');
+define('APP_ENV',     $_ENV['APP_ENV'] ?? 'development'); // 'production' saat live
 
 // Path
 define('ROOT_PATH',   dirname(__DIR__));
