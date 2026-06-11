@@ -1,11 +1,11 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Redirect Trailing Slashes...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)/$ /$1 [L,R=301]
+    # Apabila pengunjung secara eksplisit mengetik /public/ di URL, redirect ke URL bersih (tanpa /public/)
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /public/
+    RewriteRule ^public/(.*)$ /$1 [R=301,L]
 
-    # Rewrite all other requests to public folder
+    # Silently pass all requests to the public directory
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
