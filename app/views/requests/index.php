@@ -42,12 +42,13 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <span class="badge badge-<?= match($req['workflow_status']) {
-                                    'approved' => 'success',
-                                    'rejected' => 'danger',
-                                    'draft'    => 'muted',
-                                    default    => 'warning'
-                                } ?>" style="margin-bottom:5px; display:inline-block;">
+                                <?php
+                                    $badgeClass = 'warning';
+                                    if ($req['workflow_status'] === 'approved') $badgeClass = 'success';
+                                    elseif ($req['workflow_status'] === 'rejected') $badgeClass = 'danger';
+                                    elseif ($req['workflow_status'] === 'draft') $badgeClass = 'muted';
+                                ?>
+                                <span class="badge badge-<?= $badgeClass ?>" style="margin-bottom:5px; display:inline-block;">
                                     <?= ucwords(str_replace('_', ' ', $req['workflow_status'])) ?>
                                 </span>
                                 <?php if (!empty($req['approver_notes'])): ?>

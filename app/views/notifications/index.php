@@ -30,18 +30,15 @@
                     ?>
                     <a href="<?= $link ?>" style="text-decoration:none; padding: 15px 20px; border-bottom: 1px solid var(--border-color); display:flex; gap:15px; align-items:flex-start; background: <?= $notif['is_read'] ? 'transparent' : '#f8f9fa' ?>; transition: background 0.2s;">
                         <?php
-                            $iconColor = match($notif['type']) {
-                                'success' => 'var(--success-color)',
-                                'danger'  => 'var(--danger-color)',
-                                'warning' => 'var(--warning-color)',
-                                default   => 'var(--primary-color)'
-                            };
-                            $iconClass = match($notif['type']) {
-                                'success' => 'fa-check-circle',
-                                'danger'  => 'fa-times-circle',
-                                'warning' => 'fa-exclamation-circle',
-                                default   => 'fa-info-circle'
-                            };
+                            $iconColor = 'var(--primary-color)';
+                            if ($notif['type'] === 'success') $iconColor = 'var(--success-color)';
+                            elseif ($notif['type'] === 'danger') $iconColor = 'var(--danger-color)';
+                            elseif ($notif['type'] === 'warning') $iconColor = 'var(--warning-color)';
+
+                            $iconClass = 'fa-info-circle';
+                            if ($notif['type'] === 'success') $iconClass = 'fa-check-circle';
+                            elseif ($notif['type'] === 'danger') $iconClass = 'fa-times-circle';
+                            elseif ($notif['type'] === 'warning') $iconClass = 'fa-exclamation-circle';
                         ?>
                         <div style="color: <?= $iconColor ?>; font-size: 24px; padding-top: 2px;">
                             <i class="fas <?= $iconClass ?>"></i>

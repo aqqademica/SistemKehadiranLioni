@@ -550,15 +550,29 @@ class RequestController extends Controller
         require_once APP_PATH . '/models/Attendance.php';
         $attModel = new Attendance();
         
-        $status = match($request['request_type']) {
-            'tidak_finger' => 'HADIR',
-            'paid_leave'   => 'PAID_LEAVE',
-            'tidak_hadir'  => 'UNPAID_DENGAN',
-            'sakit'        => 'SAKIT',
-            'hourly_leave' => 'HOURLY_UNPAID',
-            'overtime'     => 'HADIR', // Overtime makes them present (assuming they were, or it just adds hours)
-            default        => 'HADIR'
-        };
+        switch ($request['request_type']) {
+            case 'tidak_finger':
+                $status = 'HADIR';
+                break;
+            case 'paid_leave':
+                $status = 'PAID_LEAVE';
+                break;
+            case 'tidak_hadir':
+                $status = 'UNPAID_DENGAN';
+                break;
+            case 'sakit':
+                $status = 'SAKIT';
+                break;
+            case 'hourly_leave':
+                $status = 'HOURLY_UNPAID';
+                break;
+            case 'overtime':
+                $status = 'HADIR';
+                break;
+            default:
+                $status = 'HADIR';
+                break;
+        }
 
         // [Fix 2.4] For multi-day requests (paid_leave, tidak_hadir), loop through all dates
         if (in_array($request['request_type'], ['paid_leave', 'tidak_hadir'])) {

@@ -6,14 +6,26 @@ class DashboardController extends Controller
         $this->requireLogin();
         $role = $_SESSION['role'] ?? '';
 
-        match($role) {
-            'employee'        => $this->employeeDashboard(),
-            'supervisor'      => $this->supervisorDashboard(),
-            'hrd_admin'       => $this->hrdAdminDashboard(),
-            'hrd_manager'     => $this->hrdManagerDashboard(),
-            'payroll_officer' => $this->payrollDashboard(),
-            default           => $this->redirect('login'),
-        };
+        switch ($role) {
+            case 'employee':
+                $this->employeeDashboard();
+                break;
+            case 'supervisor':
+                $this->supervisorDashboard();
+                break;
+            case 'hrd_admin':
+                $this->hrdAdminDashboard();
+                break;
+            case 'hrd_manager':
+                $this->hrdManagerDashboard();
+                break;
+            case 'payroll_officer':
+                $this->payrollDashboard();
+                break;
+            default:
+                $this->redirect('login');
+                break;
+        }
     }
 
     private function employeeDashboard(): void

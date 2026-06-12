@@ -11,15 +11,25 @@ class AttendanceRequest extends Model
         $base = $this->find($requestId);
         if (!$base) return null;
 
-        $detailTable = match($base['request_type']) {
-            'tidak_finger' => 'tidak_finger_requests',
-            'paid_leave'   => 'leave_requests',
-            'tidak_hadir'  => 'leave_requests', // Unpaid leave juga masuk leave_requests
-            'sakit'        => 'sick_requests',
-            'hourly_leave' => 'hourly_leave_requests',
-            'overtime'     => 'overtime_requests',
-            default        => null
-        };
+        $detailTable = null;
+        switch ($base['request_type']) {
+            case 'tidak_finger':
+                $detailTable = 'tidak_finger_requests';
+                break;
+            case 'paid_leave':
+            case 'tidak_hadir':
+                $detailTable = 'leave_requests';
+                break;
+            case 'sakit':
+                $detailTable = 'sick_requests';
+                break;
+            case 'hourly_leave':
+                $detailTable = 'hourly_leave_requests';
+                break;
+            case 'overtime':
+                $detailTable = 'overtime_requests';
+                break;
+        }
 
         if ($detailTable) {
             $details = $this->db->query(
@@ -80,12 +90,18 @@ class AttendanceRequest extends Model
      */
     public function validateApproverRole(string $workflowStatus, string $role, string $requestType): bool
     {
-        $expectedRole = match($workflowStatus) {
-            'pending_supervisor' => 'supervisor',
-            'pending_hrd'       => 'hrd_admin',
-            'pending_manager'   => 'hrd_manager',
-            default             => null
-        };
+        $expectedRole = null;
+        switch ($workflowStatus) {
+            case 'pending_supervisor':
+                $expectedRole = 'supervisor';
+                break;
+            case 'pending_hrd':
+                $expectedRole = 'hrd_admin';
+                break;
+            case 'pending_manager':
+                $expectedRole = 'hrd_manager';
+                break;
+        }
 
         if ($expectedRole === null) return false;
 

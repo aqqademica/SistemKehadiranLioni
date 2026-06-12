@@ -98,14 +98,25 @@ class AttendanceService
         )->fetch();
 
         if ($request) {
-            $status = match($request['request_type']) {
-                'paid_leave'   => 'PAID_LEAVE',
-                'tidak_hadir'  => 'UNPAID_DENGAN',
-                'sakit'        => 'SAKIT',
-                'hourly_leave' => 'HOURLY_UNPAID',
-                'tidak_finger' => 'HADIR',
-                default        => 'HADIR'
-            };
+            $status = 'HADIR';
+            switch ($request['request_type']) {
+                case 'paid_leave':
+                    $status = 'PAID_LEAVE';
+                    break;
+                case 'tidak_hadir':
+                    $status = 'UNPAID_DENGAN';
+                    break;
+                case 'sakit':
+                    $status = 'SAKIT';
+                    break;
+                case 'hourly_leave':
+                    $status = 'HOURLY_UNPAID';
+                    break;
+                case 'tidak_finger':
+                default:
+                    $status = 'HADIR';
+                    break;
+            }
 
             // [Fix 2.2] Untuk tidak_finger yang disetujui, tetap hitung keterlambatan dari finger log
             $lateMinutes = 0;

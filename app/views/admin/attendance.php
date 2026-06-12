@@ -35,12 +35,13 @@
                             <td><?= htmlspecialchars($log['first_name'] . ' ' . $log['last_name']) ?></td>
                             <td><?= htmlspecialchars($log['employee_code']) ?></td>
                             <td>
-                                <span class="badge badge-<?= match($log['final_status']) {
-                                    'HADIR' => 'success',
-                                    'NO_LOG', 'PENDING' => 'muted',
-                                    'SAKIT', 'PAID_LEAVE' => 'info',
-                                    default => 'danger' // Unpaid etc.
-                                } ?>">
+                                <?php
+                                    $badge = 'danger';
+                                    if ($log['final_status'] === 'HADIR') $badge = 'success';
+                                    elseif (in_array($log['final_status'], ['NO_LOG', 'PENDING'])) $badge = 'muted';
+                                    elseif (in_array($log['final_status'], ['SAKIT', 'PAID_LEAVE'])) $badge = 'info';
+                                ?>
+                                <span class="badge badge-<?= $badge ?>">
                                     <?= str_replace('_', ' ', $log['final_status']) ?>
                                 </span>
                             </td>
