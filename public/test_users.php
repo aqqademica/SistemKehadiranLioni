@@ -5,22 +5,36 @@ require_once ROOT_PATH . '/config/database.php';
 try {
     $db = Database::getInstance()->getConnection();
     
-    $usersCount = $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-    $employeesCount = $db->query("SELECT COUNT(*) FROM employees")->fetchColumn();
-    $rolesCount = $db->query("SELECT COUNT(*) FROM roles")->fetchColumn();
+    $username = 'MGR001_Budi_Santoso';
     
-    echo "<h3>Database Statistics</h3>";
-    echo "Users count: " . $usersCount . "<br>";
-    echo "Employees count: " . $employeesCount . "<br>";
-    echo "Roles count: " . $rolesCount . "<br>";
+    echo "<h3>Testing findByUsername query for: " . htmlspecialchars($username) . "</h3>";
     
-    echo "<h3>Users List</h3>";
-    $users = $db->query("SELECT id, employee_id, username, role_id, is_active FROM users")->fetchAll(PDO::FETCH_ASSOC);
-    echo "<pre>" . print_r($users, true) . "</pre>";
+    // Check user row directly
+    $userRow = $db->query("SELECT * FROM users WHERE username = 'MGR001_Budi_Santoso'")->fetch(PDO::FETCH_ASSOC);
+    echo "Direct user query result:<pre>" . print_r($userRow, true) . "</pre>";
     
-    echo "<h3>Employees List</h3>";
-    $employees = $db->query("SELECT id, employee_code, first_name, last_name FROM employees")->fetchAll(PDO::FETCH_ASSOC);
-    echo "<pre>" . print_r($employees, true) . "</pre>";
+    // Check joins individually
+    if ($userRow) {
+        $empRow = $db->query("SELECT * FROM employees WHERE id = " . (int)$userRow['employee_id'])->fetch(PDO::FETCH_ASSOC);
+        echo "Direct employee query result:<pre>" . print_r($empRow, true) . "</pre>";
+        
+        $roleRow = $db->query("SELECT * FROM roles WHERE id = " . (int)$userRow['role_id'])->fetch(PDO::FETCH_ASSOC);
+        echo "Direct role query result:<pre>" . print_r($roleRow, true) . "</pre>";
+    }
+    
+    // Full Join Query
+    $q = "SELECT u.*, e.first_name, e.last_name, e.employee_code, e.department_id, e.position_id,
+                 r.name AS role_name, r.display_name AS role_display
+          FROM users u
+          JOIN employees e ON e.id = u.employee_id
+          JOIN roles r ON r.id = u.role_id
+          WHERE u.username = ? LIMIT 1";
+          
+    $stmt = $db->prepare($q);
+    $stmt->execute([$username]);
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    echo "Full JOIN query result:<pre>" . print_r($res, true) . "</pre>";
     
 } catch (Exception $e) {
     echo "ERROR: " . $e->getMessage();
