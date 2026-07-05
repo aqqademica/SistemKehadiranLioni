@@ -143,7 +143,7 @@ function showViewModal(data) {
     document.getElementById('v_email').innerText = data.email;
     document.getElementById('v_urgent').innerText = data.urgent;
     
-    document.getElementById('v_edit_btn').href = APP_URL . '/admin/employees/edit?id=' + data.id;
+    document.getElementById('v_edit_btn').href = '<?= APP_URL ?>/admin/employees/edit?id=' + data.id;
 
     const vPhoto = document.getElementById('v_photo');
     const vNoPhoto = document.getElementById('v_no_photo');
