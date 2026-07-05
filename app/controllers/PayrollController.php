@@ -165,7 +165,7 @@ class PayrollController extends Controller
      */
     public function closePeriod(): void
     {
-        $this->requireRole(['hrd_manager']);
+        $this->requireRole(['payroll_officer', 'hrd_manager']);
         $this->verifyCsrf();
 
         $periodId = $this->inputInt('period_id');
@@ -189,6 +189,49 @@ class PayrollController extends Controller
             $this->flash('danger', 'Gagal menutup periode: ' . $e->getMessage());
         }
 
+        $this->redirect('payroll');
+    }
+
+    /**
+     * Buka periode payroll baru
+     */
+    public function openPeriod(): void
+    {
+        $this->requireRole(['payroll_officer', 'hrd_manager']);
+        $this->verifyCsrf();
+        
+        $month = $this->inputInt('month');
+        $year = $this->inputInt('year');
+        
+        try {
+            if ($month < 1 || $month > 12) throw new Exception("Bulan tidak valid.");
+            if ($year < 2000 || $year > 2100) throw new Exception("Tahun tidak valid.");
+            
+            // Check if there is already an open period
+            $existingOpen = $this->db->query("SELECT COUNT(*) FROM payroll_periods WHERE status = 'open'")->fetchColumn();
+            if ($existingOpen > 0) {
+                throw new Exception("Masih ada periode payroll yang aktif. Tutup periode tersebut terlebih dahulu.");
+            }
+            
+            // Check if period already exists
+            $existingPeriod = $this->db->query("SELECT COUNT(*) FROM payroll_periods WHERE month = ? AND year = ?", [$month, $year])->fetchColumn();
+            if ($existingPeriod > 0) {
+                throw new Exception("Periode untuk bulan dan tahun tersebut sudah pernah dibuat.");
+            }
+            
+            $startDate = sprintf('%04d-%02d-01', $year, $month);
+            $endDate = date('Y-m-t', strtotime($startDate));
+            
+            $this->db->query(
+                "INSERT INTO payroll_periods (month, year, start_date, end_date, status, created_by) VALUES (?, ?, ?, ?, 'open', ?)",
+                [$month, $year, $startDate, $endDate, $_SESSION['user_id']]
+            );
+            
+            $this->flash('success', "Periode payroll baru berhasil dibuka.");
+        } catch (Exception $e) {
+            $this->flash('danger', 'Gagal membuka periode: ' . $e->getMessage());
+        }
+        
         $this->redirect('payroll');
     }
 }

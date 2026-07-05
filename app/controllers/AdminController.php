@@ -55,22 +55,65 @@ class AdminController extends Controller
     }
 
     /**
+     * Daftar Anggota Tim (Supervisor View)
+     */
+    public function myTeam(): void
+    {
+        $this->requireRole(['supervisor']);
+        $empId = $_SESSION['employee_id'] ?? 0;
+        
+        $deptId = $this->db->query("SELECT department_id FROM employees WHERE id = ?", [$empId])->fetchColumn();
+        
+        $employees = $this->db->query(
+            "SELECT e.*, d.name as dept_name, p.name as pos_name 
+             FROM employees e
+             JOIN departments d ON d.id = e.department_id
+             JOIN positions p ON p.id = e.position_id
+             WHERE e.department_id = ? AND e.employment_status = 'active'
+             ORDER BY e.employee_code ASC",
+            [$deptId]
+        )->fetchAll();
+
+        $this->render('admin.employees', [
+            'pageTitle'          => 'Anggota Tim Saya',
+            'activePage'         => '/KehadiranApp/public/hrd/my-team',
+            'employees'          => $employees,
+            'isSupervisorView'   => true
+        ]);
+    }
+
+    /**
      * Rekap Kehadiran Seluruh Karyawan (Admin View)
      */
     public function attendance(): void
     {
-        $this->requireRole(['hrd_admin', 'hrd_manager']);
+        $this->requireRole(['hrd_admin', 'hrd_manager', 'supervisor']);
         
         $date = $this->input('date', date('Y-m-d'));
+        $role = $_SESSION['role'];
+        $empId = $_SESSION['employee_id'] ?? 0;
         
-        $logs = $this->db->query(
-            "SELECT d.*, e.first_name, e.last_name, e.employee_code 
-             FROM daily_attendance_status d
-             JOIN employees e ON e.id = d.employee_id
-             WHERE d.attendance_date = ?
-             ORDER BY e.first_name ASC",
-            [$date]
-        )->fetchAll();
+        if ($role === 'supervisor') {
+            $deptId = $this->db->query("SELECT department_id FROM employees WHERE id = ?", [$empId])->fetchColumn();
+            
+            $logs = $this->db->query(
+                "SELECT d.*, e.first_name, e.last_name, e.employee_code 
+                 FROM daily_attendance_status d
+                 JOIN employees e ON e.id = d.employee_id
+                 WHERE d.attendance_date = ? AND e.department_id = ?
+                 ORDER BY e.first_name ASC",
+                [$date, $deptId]
+            )->fetchAll();
+        } else {
+            $logs = $this->db->query(
+                "SELECT d.*, e.first_name, e.last_name, e.employee_code 
+                 FROM daily_attendance_status d
+                 JOIN employees e ON e.id = d.employee_id
+                 WHERE d.attendance_date = ?
+                 ORDER BY e.first_name ASC",
+                [$date]
+            )->fetchAll();
+        }
 
         $this->render('admin.attendance', [
             'pageTitle'  => 'Rekap Kehadiran (' . date('d M Y', strtotime($date)) . ')',
@@ -669,5 +712,131 @@ class AdminController extends Controller
         }
 
         $this->redirect('hrd/accounts');
+    }
+
+    /**
+     * Halaman Surat Peringatan (SP) untuk HRD Manager & Supervisor
+     */
+    public function warningLetters(): void
+    {
+        $this->requireRole(['hrd_manager', 'supervisor']);
+        
+        $role = $_SESSION['role'];
+        $empId = $_SESSION['employee_id'] ?? 0;
+        
+        if ($role === 'supervisor') {
+            // Get supervisor's department
+            $deptId = $this->db->query("SELECT department_id FROM employees WHERE id = ?", [$empId])->fetchColumn();
+            
+            $warningLetters = $this->db->query(
+                "SELECT wl.*, e.first_name, e.last_name, e.employee_code, d.name as dept_name, p.name as pos_name,
+                        u.username as issuer_name
+                 FROM warning_letters wl
+                 JOIN employees e ON e.id = wl.employee_id
+                 JOIN departments d ON d.id = e.department_id
+                 JOIN positions p ON p.id = e.position_id
+                 JOIN users u ON u.id = wl.issued_by
+                 WHERE e.department_id = ?
+                 ORDER BY wl.issued_at DESC",
+                [$deptId]
+            )->fetchAll();
+        } else {
+            // hrd_manager sees all
+            $warningLetters = $this->db->query(
+                "SELECT wl.*, e.first_name, e.last_name, e.employee_code, d.name as dept_name, p.name as pos_name,
+                        u.username as issuer_name
+                 FROM warning_letters wl
+                 JOIN employees e ON e.id = wl.employee_id
+                 JOIN departments d ON d.id = e.department_id
+                 JOIN positions p ON p.id = e.position_id
+                 JOIN users u ON u.id = wl.issued_by
+                 ORDER BY wl.issued_at DESC"
+            )->fetchAll();
+        }
+        
+        $this->render('admin.warning_letters', [
+            'pageTitle' => 'Daftar Surat Peringatan (SP)',
+            'activePage' => '/KehadiranApp/public/hrd/warning-letters',
+            'warningLetters' => $warningLetters,
+            'csrf_token' => $this->generateCsrf()
+        ]);
+    }
+
+    /**
+     * Acknowledge Surat Peringatan
+     */
+    public function acknowledgeWarningLetter(): void
+    {
+        $this->requireRole(['hrd_manager', 'supervisor']);
+        $this->verifyCsrf();
+        
+        $id = $this->inputInt('id');
+        $notes = $this->input('notes');
+        
+        $this->db->query(
+            "UPDATE warning_letters SET acknowledged_by = ?, acknowledged_at = NOW(), notes = ? WHERE id = ?",
+            [$_SESSION['user_id'], $notes, $id]
+        );
+        
+        $this->flash('success', 'Surat Peringatan berhasil di-acknowledge.');
+        $this->redirect('hrd/warning-letters');
+    }
+
+    /**
+     * Halaman Statistik & Laporan (HRD Manager View)
+     */
+    public function statistics(): void
+    {
+        $this->requireRole(['hrd_manager']);
+        
+        // 1. Total Active vs Terminated Employees
+        $activeEmp = $this->db->query("SELECT COUNT(*) FROM employees WHERE employment_status = 'active'")->fetchColumn();
+        $termEmp = $this->db->query("SELECT COUNT(*) FROM employees WHERE employment_status = 'terminated'")->fetchColumn();
+        
+        // 2. Department size breakdown
+        $deptStats = $this->db->query(
+            "SELECT d.name, COUNT(e.id) as emp_count
+             FROM departments d
+             LEFT JOIN employees e ON e.department_id = d.id AND e.employment_status = 'active'
+             GROUP BY d.id, d.name
+             ORDER BY emp_count DESC"
+        )->fetchAll();
+        
+        // 3. Current month attendance stats
+        $month = date('Y-m');
+        $attendanceStats = $this->db->query(
+            "SELECT 
+                COUNT(CASE WHEN final_status = 'HADIR' THEN 1 END) as present_days,
+                COUNT(CASE WHEN final_status = 'UNPAID_TANPA' THEN 1 END) as alpha_days,
+                COUNT(CASE WHEN final_status = 'UNPAID_DENGAN' THEN 1 END) as unpaid_excused_days,
+                COUNT(CASE WHEN final_status = 'SAKIT' THEN 1 END) as sick_days,
+                COUNT(CASE WHEN final_status = 'PAID_LEAVE' THEN 1 END) as leave_days,
+                COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_count
+             FROM daily_attendance_status 
+             WHERE DATE_FORMAT(attendance_date, '%Y-%m') = ?",
+            [$month]
+        )->fetch();
+        
+        // 4. Warning Letters by level
+        $wlStats = $this->db->query(
+            "SELECT wl_type, COUNT(*) as cnt 
+             FROM warning_letters 
+             GROUP BY wl_type"
+        )->fetchAll();
+        $wlCounts = ['WL1' => 0, 'WL2' => 0, 'WL3' => 0, 'TERMINATION' => 0];
+        foreach ($wlStats as $w) {
+            $wlCounts[$w['wl_type']] = (int)$w['cnt'];
+        }
+
+        $this->render('admin.statistics', [
+            'pageTitle' => 'Statistik & Analitik Laporan',
+            'activePage' => '/KehadiranApp/public/hrd/statistics',
+            'activeEmp' => $activeEmp,
+            'termEmp' => $termEmp,
+            'deptStats' => $deptStats,
+            'attStats' => $attendanceStats,
+            'wlCounts' => $wlCounts,
+            'currentMonth' => date('F Y')
+        ]);
     }
 }

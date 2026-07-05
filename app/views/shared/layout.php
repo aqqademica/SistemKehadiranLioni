@@ -50,18 +50,18 @@ if ($roleName === 'employee') {
         ['section' => 'Informasi'],
         ['icon' => 'fas fa-tasks',        'label' => 'Status Pengajuan', 'href' => APP_URL . '/requests'],
         ['icon' => 'fas fa-money-bill',   'label' => 'Slip Gaji',        'href' => APP_URL . '/my-salary'],
-        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '#'],
+        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => APP_URL . '/notifications'],
     ];
 } elseif ($roleName === 'supervisor') {
     $menus = [
         ['section' => 'Menu Utama'],
         ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => APP_URL . '/dashboard'],
-        ['icon' => 'fas fa-users',        'label' => 'Tim Saya',         'href' => APP_URL . '/dashboard'],
+        ['icon' => 'fas fa-users',        'label' => 'Tim Saya',         'href' => APP_URL . '/hrd/my-team'],
         ['section' => 'Approval'],
         ['icon' => 'fas fa-check-circle', 'label' => 'Antrian Approval', 'href' => APP_URL . '/requests/approvals'],
-        ['icon' => 'fas fa-calendar-check','label'=> 'Rekap Kehadiran',  'href' => APP_URL . '/dashboard'],
+        ['icon' => 'fas fa-calendar-check','label'=> 'Rekap Kehadiran',  'href' => APP_URL . '/hrd/attendance'],
         ['section' => 'Informasi'],
-        ['icon' => 'fas fa-exclamation-triangle','label'=> 'Warning Letter', 'href' => '#'],
+        ['icon' => 'fas fa-exclamation-triangle','label'=> 'Warning Letter', 'href' => APP_URL . '/hrd/warning-letters'],
         ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => APP_URL . '/notifications'],
     ];
 } elseif ($roleName === 'hrd_admin') {
@@ -85,10 +85,10 @@ if ($roleName === 'employee') {
         ['icon' => 'fas fa-tachometer-alt','label'=> 'Dashboard',        'href' => APP_URL . '/dashboard'],
         ['section' => 'Final Approval'],
         ['icon' => 'fas fa-check-double', 'label' => 'Final Approval',   'href' => APP_URL . '/requests/approvals'],
-        ['icon' => 'fas fa-exclamation-triangle','label'=> 'Warning Letter', 'href' => '#'],
+        ['icon' => 'fas fa-exclamation-triangle','label'=> 'Warning Letter', 'href' => APP_URL . '/hrd/warning-letters'],
         ['section' => 'Laporan'],
-        ['icon' => 'fas fa-chart-bar',    'label' => 'Statistik',        'href' => '#'],
-        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '#'],
+        ['icon' => 'fas fa-chart-bar',    'label' => 'Statistik',        'href' => APP_URL . '/hrd/statistics'],
+        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => APP_URL . '/notifications'],
         ['section' => 'Konfigurasi'],
         ['icon' => 'fas fa-money-check-alt', 'label' => 'Standar Gaji',   'href' => APP_URL . '/hrd-manager/salary-config'],
     ];
@@ -103,7 +103,7 @@ if ($roleName === 'employee') {
         ['icon' => 'fas fa-lock',         'label' => 'Payroll Closing',  'href' => '#'],
         ['section' => 'Laporan'],
         ['icon' => 'fas fa-chart-line',   'label' => 'Laporan Payroll',  'href' => '#'],
-        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => '#'],
+        ['icon' => 'fas fa-bell',         'label' => 'Notifikasi',       'href' => APP_URL . '/notifications'],
     ];
 }
 ?>

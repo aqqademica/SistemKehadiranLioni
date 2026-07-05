@@ -73,6 +73,7 @@ $router->post('/admin/employees/update',     'AdminController@updateEmployee');
 $router->post('/admin/employees/delete',     'AdminController@deleteEmployee');
 $router->get('/hrd/attendance',              'AdminController@attendance');
 $router->get('/hrd/health-partners',         'AdminController@healthPartners');
+$router->get('/hrd/my-team',                 'AdminController@myTeam');
 $router->post('/hrd/health-partners/store',  'AdminController@storeHealthPartner');
 $router->post('/hrd/health-partners/update', 'AdminController@updateHealthPartner');
 $router->post('/hrd/health-partners/delete', 'AdminController@deleteHealthPartner');
@@ -93,6 +94,9 @@ $router->get('/hrd/accounts',                'AdminController@accounts');
 $router->get('/hrd/accounts/search',         'AdminController@searchEmployeeNoAccount');
 $router->post('/hrd/accounts/store',         'AdminController@storeAccount');
 $router->post('/hrd/accounts/update',        'AdminController@updateAccount');
+$router->get('/hrd/warning-letters',         'AdminController@warningLetters');
+$router->post('/hrd/warning-letters/acknowledge', 'AdminController@acknowledgeWarningLetter');
+$router->get('/hrd/statistics',              'AdminController@statistics');
 
 // HRD Config (Shift & Salary)
 $router->get('/hrd-manager/salary-config',   'HrConfigController@salaryConfig');
@@ -119,6 +123,7 @@ $router->get('/payroll/detail',             'PayrollController@detail');
 $router->get('/payroll/history',            'PayrollController@history');
 $router->get('/my-salary',                  'PayrollController@mySalary');
 $router->post('/payroll/close',              'PayrollController@closePeriod'); // [Fix 7.7] Close/lock payroll period
+$router->post('/payroll/open',               'PayrollController@openPeriod');
 
 // ============================================================
 // Dispatch

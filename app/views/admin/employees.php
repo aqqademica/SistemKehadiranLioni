@@ -1,10 +1,13 @@
 <?php
 // app/views/admin/employees.php
+$isSupervisor = isset($isSupervisorView) && $isSupervisorView;
 ?>
 <div class="card">
     <div class="card-header">
-        <div class="card-title"><i class="fas fa-user-friends"></i> Data Karyawan</div>
-        <a href="<?= APP_URL ?>/admin/employees/create" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Tambah Karyawan</a>
+        <div class="card-title"><i class="fas fa-user-friends"></i> <?= $isSupervisor ? 'Anggota Tim Saya' : 'Data Karyawan' ?></div>
+        <?php if (!$isSupervisor): ?>
+            <a href="<?= APP_URL ?>/admin/employees/create" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Tambah Karyawan</a>
+        <?php endif; ?>
     </div>
     <div class="card-body" style="padding:0">
         <?php if (empty($employees)): ?>
@@ -40,7 +43,9 @@
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:5px;">
-                                        <a href="<?= APP_URL ?>/admin/employees/edit?id=<?= $emp['id'] ?>" class="btn btn-outline btn-sm" title="Edit Data"><i class="fas fa-edit"></i></a>
+                                        <?php if (!$isSupervisor): ?>
+                                            <a href="<?= APP_URL ?>/admin/employees/edit?id=<?= $emp['id'] ?>" class="btn btn-outline btn-sm" title="Edit Data"><i class="fas fa-edit"></i></a>
+                                        <?php endif; ?>
                                         <button class="btn btn-outline btn-sm" title="Lihat Profil" onclick='showViewModal(<?= json_encode([
                                             "name" => htmlspecialchars($emp["first_name"] . " " . $emp["last_name"]),
                                             "code" => $emp["employee_code"],
@@ -59,10 +64,12 @@
                                             "ijazah" => $emp["photo_ijazah"] ? "/KehadiranApp/public" . $emp["photo_ijazah"] : null,
                                             "id" => $emp["id"]
                                         ]) ?>)'><i class="fas fa-eye"></i></button>
-                                        <form action="<?= APP_URL ?>/admin/employees/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus/menonaktifkan karyawan ini? Akun mereka juga akan dinonaktifkan.');" style="display:inline;">
-                                            <input type="hidden" name="id" value="<?= $emp['id'] ?>">
-                                            <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color); border-color:var(--danger-color);" title="Hapus Data"><i class="fas fa-trash"></i></button>
-                                        </form>
+                                        <?php if (!$isSupervisor): ?>
+                                            <form action="<?= APP_URL ?>/admin/employees/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus/menonaktifkan karyawan ini? Akun mereka juga akan dinonaktifkan.');" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?= $emp['id'] ?>">
+                                                <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger-color); border-color:var(--danger-color);" title="Hapus Data"><i class="fas fa-trash"></i></button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
@@ -119,9 +126,11 @@
                 </div>
             </div>
             
-            <div style="text-align:right; border-top:1px solid #eee; padding-top:15px;">
-                <a href="#" id="v_edit_btn" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Data</a>
-            </div>
+            <?php if (!$isSupervisor): ?>
+                <div style="text-align:right; border-top:1px solid #eee; padding-top:15px;">
+                    <a href="#" id="v_edit_btn" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Data</a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -143,7 +152,10 @@ function showViewModal(data) {
     document.getElementById('v_email').innerText = data.email;
     document.getElementById('v_urgent').innerText = data.urgent;
     
-    document.getElementById('v_edit_btn').href = '<?= APP_URL ?>/admin/employees/edit?id=' + data.id;
+    const editBtn = document.getElementById('v_edit_btn');
+    if (editBtn) {
+        editBtn.href = '<?= APP_URL ?>/admin/employees/edit?id=' + data.id;
+    }
 
     const vPhoto = document.getElementById('v_photo');
     const vNoPhoto = document.getElementById('v_no_photo');
