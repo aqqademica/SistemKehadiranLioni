@@ -8,9 +8,9 @@
 require_once dirname(__DIR__) . '/config/app.php';
 
 $host   = $_ENV['DB_HOST'] ?? 'localhost';
-$user   = $_ENV['DB_USER'] ?? 'root';
-$pass   = $_ENV['DB_PASS'] ?? '';
-$dbname = $_ENV['DB_NAME'] ?? 'kehadiran_app';
+$user   = $_ENV['DB_USER'] ?? 'gere1931_kehadiranapp';
+$pass   = $_ENV['DB_PASS'] ?? 'hiLdQmX6V2CfrfB';
+$dbname = $_ENV['DB_NAME'] ?? 'gere1931_kehadiranapp';
 
 echo "<pre style='font-family:monospace;padding:20px;'>\n";
 echo "=== KehadiranApp Database Seeder ===\n\n";
