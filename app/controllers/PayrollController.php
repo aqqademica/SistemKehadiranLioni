@@ -86,6 +86,41 @@ class PayrollController extends Controller
     }
 
     /**
+     * Riwayat Rincian Payroll per Periode (List Karyawan)
+     */
+    public function history(): void
+    {
+        $this->requireRole(['payroll_officer', 'hrd_manager']);
+        $periodId = $this->inputInt('id');
+
+        $period = $this->db->query("SELECT * FROM payroll_periods WHERE id = ?", [$periodId])->fetch();
+        if (!$period) {
+            $this->flash('danger', 'Periode tidak ditemukan.');
+            $this->redirect('payroll');
+        }
+
+        // Fetch details of all employee runs for this period
+        $details = $this->db->query(
+            "SELECT pd.*, e.first_name, e.last_name, e.employee_code, p.name as position_name, d.name as dept_name
+             FROM payroll_details pd
+             JOIN employees e ON e.id = pd.employee_id
+             JOIN positions p ON p.id = e.position_id
+             JOIN departments d ON d.id = e.department_id
+             JOIN payroll_runs pr ON pr.id = pd.run_id
+             WHERE pr.period_id = ?
+             ORDER BY e.employee_code ASC",
+            [$periodId]
+        )->fetchAll();
+
+        $this->render('payroll.history', [
+            'pageTitle'  => 'Rincian Payroll Periode',
+            'activePage' => '/KehadiranApp/public/payroll',
+            'period'     => $period,
+            'details'    => $details
+        ]);
+    }
+
+    /**
      * Slip Gaji Saya (Employee View)
      */
     public function mySalary(): void

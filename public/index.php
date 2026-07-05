@@ -113,6 +113,7 @@ $router->get('/notifications',               'NotificationController@index');
 $router->get('/payroll',                    'PayrollController@index');
 $router->post('/payroll/run',               'PayrollController@run');
 $router->get('/payroll/detail',             'PayrollController@detail');
+$router->get('/payroll/history',            'PayrollController@history');
 $router->get('/my-salary',                  'PayrollController@mySalary');
 $router->post('/payroll/close',              'PayrollController@closePeriod'); // [Fix 7.7] Close/lock payroll period
 
