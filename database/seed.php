@@ -375,7 +375,7 @@ try {
     echo "  Payroll      : PAY001_Agus_Wijaya       / 123\n";
     echo "  Supervisor   : SPV001_Dian_Pratama      / 123\n";
     echo "  Karyawan     : EMP001_Ahmad_Fauzi       / 123\n";
-    echo "\nAkses aplikasi: <a href='http://localhost/KehadiranApp/public/'>http://localhost/KehadiranApp/public/</a>\n";
+    echo "\nAkses aplikasi: <a href='" . APP_URL . "'>" . APP_URL . "</a>\n";
 
 } catch (PDOException $e) {
     echo "\n[ERROR] " . $e->getMessage() . "\n";
