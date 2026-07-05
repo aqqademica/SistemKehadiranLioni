@@ -250,6 +250,7 @@ CREATE TABLE IF NOT EXISTS `payroll_details` (
     `net_pay`            DECIMAL(15,2) NOT NULL DEFAULT 0,
     `notes`              TEXT,
     `created_at`         TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`         TIMESTAMP     NULL ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_run_emp` (`run_id`, `employee_id`),
     FOREIGN KEY (`run_id`)      REFERENCES `payroll_runs`(`id`) ON DELETE CASCADE,
