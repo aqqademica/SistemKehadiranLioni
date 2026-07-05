@@ -91,6 +91,7 @@ try {
         ['payroll_officer', 'Payroll Officer'],
     ];
     $pdo->exec("DELETE FROM roles");
+    $pdo->exec("ALTER TABLE roles AUTO_INCREMENT = 1");
     $stmt = $pdo->prepare("INSERT INTO roles (name, display_name) VALUES (?, ?)");
     foreach ($roles as $r) $stmt->execute($r);
     echo "   [OK] " . count($roles) . " roles.\n";
@@ -98,6 +99,7 @@ try {
     // Departments
     echo ">> Seeding departments...\n";
     $pdo->exec("DELETE FROM departments");
+    $pdo->exec("ALTER TABLE departments AUTO_INCREMENT = 1");
     $deps = [
         ['Human Resources', 'HRD', 'Divisi Sumber Daya Manusia'],
         ['Finance',         'FIN', 'Divisi Keuangan'],
@@ -112,6 +114,7 @@ try {
     // Positions
     echo ">> Seeding positions...\n";
     $pdo->exec("DELETE FROM positions");
+    $pdo->exec("ALTER TABLE positions AUTO_INCREMENT = 1");
     $positions = [
         [1, 'Manager HRD',       'MGR-HRD', 'manager'],
         [1, 'Admin HRD',         'ADM-HRD', 'staff'],
@@ -235,6 +238,12 @@ try {
     $pdo->exec("DELETE FROM finger_logs");
     $pdo->exec("DELETE FROM users");
     $pdo->exec("DELETE FROM employees");
+    $pdo->exec("ALTER TABLE employees AUTO_INCREMENT = 1");
+    $pdo->exec("ALTER TABLE users AUTO_INCREMENT = 1");
+    $pdo->exec("ALTER TABLE employee_shifts AUTO_INCREMENT = 1");
+    $pdo->exec("ALTER TABLE employee_leave_balances AUTO_INCREMENT = 1");
+    $pdo->exec("ALTER TABLE employee_salary_components AUTO_INCREMENT = 1");
+    $pdo->exec("ALTER TABLE finger_logs AUTO_INCREMENT = 1");
 
     $employees = [
         // code,      fname,    lname,      dept, pos, join_date,    salary
