@@ -6,6 +6,8 @@
  */
 
 require_once dirname(__DIR__) . '/config/app.php';
+require_once ROOT_PATH . '/config/database.php';
+require_once ROOT_PATH . '/core/Model.php';
 
 $host   = $_ENV['DB_HOST'] ?? 'localhost';
 $user   = $_ENV['DB_USER'] ?? 'gere1931_kehadiranapp';
@@ -232,6 +234,9 @@ try {
 
     // Employees
     echo ">> Seeding employees...\n";
+    $pdo->exec("DELETE FROM payroll_details");
+    $pdo->exec("DELETE FROM payroll_runs");
+    $pdo->exec("DELETE FROM payroll_periods");
     $pdo->exec("DELETE FROM request_approvals");
     $pdo->exec("DELETE FROM tidak_finger_requests");
     $pdo->exec("DELETE FROM leave_requests");
@@ -248,6 +253,7 @@ try {
     $pdo->exec("DELETE FROM employees");
 
     $tablesToReset = [
+        'payroll_details', 'payroll_runs', 'payroll_periods',
         'request_approvals', 'tidak_finger_requests', 'leave_requests', 'sick_requests',
         'hourly_leave_requests', 'overtime_requests', 'attendance_requests', 'daily_attendance_status',
         'finger_logs', 'employee_salary_components', 'employee_shifts', 'employee_leave_balances',
@@ -444,6 +450,43 @@ try {
         }
     }
     echo "   [OK] {$fingerCount} finger logs, {$dailyCount} daily attendance statuses, and {$requestCount} requests seeded.\n";
+
+    // Seeding Payroll Periods (Mei, Juni, Juli)
+    echo ">> Seeding payroll periods (Mei, Juni, Juli)...\n";
+    $stmtPeriod = $pdo->prepare("INSERT INTO payroll_periods (month, year, start_date, end_date, status, created_by) VALUES (?, ?, ?, ?, ?, 1)");
+    
+    // Mei 2026 (closed)
+    $stmtPeriod->execute([5, 2026, '2026-05-01', '2026-05-31', 'closed']);
+    $mayPeriodId = $pdo->lastInsertId();
+    
+    // Juni 2026 (closed)
+    $stmtPeriod->execute([6, 2026, '2026-06-01', '2026-06-30', 'closed']);
+    $juniPeriodId = $pdo->lastInsertId();
+    
+    // Juli 2026 (open)
+    $stmtPeriod->execute([7, 2026, '2026-07-01', '2026-07-31', 'open']);
+    $juliPeriodId = $pdo->lastInsertId();
+    echo "   [OK] 3 payroll periods seeded.\n";
+
+    // Run payroll calculations for closed periods (May & June)
+    echo ">> Running payroll calculations for closed periods...\n";
+    require_once ROOT_PATH . '/app/services/PayrollService.php';
+    $payrollService = new PayrollService();
+    
+    try {
+        // Temporarily open the closed periods to allow calculations to run
+        $pdo->exec("UPDATE payroll_periods SET status = 'open' WHERE id IN ($mayPeriodId, $juniPeriodId)");
+        
+        $payrollService->runAll($mayPeriodId, 1);
+        $payrollService->runAll($juniPeriodId, 1);
+        
+        // Re-close the periods
+        $pdo->exec("UPDATE payroll_periods SET status = 'closed', closed_by = 1, closed_at = NOW() WHERE id IN ($mayPeriodId, $juniPeriodId)");
+        echo "   [OK] Payroll calculations for May & June completed and closed.\n";
+    } catch (Exception $ex) {
+        echo "   [ERROR] Gagal menghitung payroll: " . $ex->getMessage() . "\n";
+    }
+
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
     echo "\n=== Seeding selesai! ===\n\n";
