@@ -9,6 +9,11 @@ require_once dirname(__DIR__) . '/config/app.php';
 require_once ROOT_PATH . '/config/database.php';
 require_once ROOT_PATH . '/core/Model.php';
 
+if (APP_ENV !== 'development') {
+    http_response_code(403);
+    die("Akses ditolak: Seeder hanya dapat dijalankan pada environment development.");
+}
+
 $host   = $_ENV['DB_HOST'] ?? 'localhost';
 $user   = $_ENV['DB_USER'] ?? 'gere1931_kehadiranapp';
 $pass   = $_ENV['DB_PASS'] ?? 'hiLdQmX6V2CfrfB';

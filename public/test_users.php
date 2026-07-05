@@ -3,6 +3,11 @@ header('Content-Type: text/plain');
 require_once __DIR__ . '/../config/app.php';
 require_once ROOT_PATH . '/config/database.php';
 
+if (APP_ENV !== 'development') {
+    http_response_code(403);
+    die('Forbidden: This diagnostic script can only be run in development environment.');
+}
+
 try {
     $db = Database::getInstance()->getConnection();
     
