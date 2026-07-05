@@ -232,18 +232,30 @@ try {
 
     // Employees
     echo ">> Seeding employees...\n";
+    $pdo->exec("DELETE FROM request_approvals");
+    $pdo->exec("DELETE FROM tidak_finger_requests");
+    $pdo->exec("DELETE FROM leave_requests");
+    $pdo->exec("DELETE FROM sick_requests");
+    $pdo->exec("DELETE FROM hourly_leave_requests");
+    $pdo->exec("DELETE FROM overtime_requests");
+    $pdo->exec("DELETE FROM attendance_requests");
+    $pdo->exec("DELETE FROM daily_attendance_status");
+    $pdo->exec("DELETE FROM finger_logs");
     $pdo->exec("DELETE FROM employee_salary_components");
     $pdo->exec("DELETE FROM employee_shifts");
     $pdo->exec("DELETE FROM employee_leave_balances");
-    $pdo->exec("DELETE FROM finger_logs");
     $pdo->exec("DELETE FROM users");
     $pdo->exec("DELETE FROM employees");
-    $pdo->exec("ALTER TABLE employees AUTO_INCREMENT = 1");
-    $pdo->exec("ALTER TABLE users AUTO_INCREMENT = 1");
-    $pdo->exec("ALTER TABLE employee_shifts AUTO_INCREMENT = 1");
-    $pdo->exec("ALTER TABLE employee_leave_balances AUTO_INCREMENT = 1");
-    $pdo->exec("ALTER TABLE employee_salary_components AUTO_INCREMENT = 1");
-    $pdo->exec("ALTER TABLE finger_logs AUTO_INCREMENT = 1");
+
+    $tablesToReset = [
+        'request_approvals', 'tidak_finger_requests', 'leave_requests', 'sick_requests',
+        'hourly_leave_requests', 'overtime_requests', 'attendance_requests', 'daily_attendance_status',
+        'finger_logs', 'employee_salary_components', 'employee_shifts', 'employee_leave_balances',
+        'users', 'employees'
+    ];
+    foreach ($tablesToReset as $tbl) {
+        $pdo->exec("ALTER TABLE `$tbl` AUTO_INCREMENT = 1;");
+    }
 
     $employees = [
         // code,      fname,    lname,      dept, pos, join_date,    salary
@@ -328,44 +340,110 @@ try {
     }
     echo "   [OK] Salary components seeded.\n";
 
-    // Dummy Finger Logs (bulan ini)
-    echo ">> Seeding finger_logs (dummy — bulan ini)...\n";
-    $year  = date('Y');
-    $month = date('m');
-    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-    $count = 0;
-    $stmtF = $pdo->prepare("INSERT INTO finger_logs (employee_id, log_date, timestamp_in, timestamp_out, device_id, location, raw_status) VALUES (?, ?, ?, ?, 'FP-DEVICE-001', 'Kantor Utama', ?)");
+    // Dummy Attendance Logs (3 bulan: Mei, Juni, Juli)
+    echo ">> Seeding 3 months of daily_attendance_status, finger_logs, and workflow requests...\n";
+    $currentYear = date('Y');
+    
+    // Statements for inserting data
+    $stmtFinger = $pdo->prepare("INSERT INTO finger_logs (employee_id, log_date, timestamp_in, timestamp_out, device_id, location, raw_status) VALUES (?, ?, ?, ?, 'FP-DEVICE-001', 'Kantor Utama', ?)");
+    $stmtDaily = $pdo->prepare("INSERT INTO daily_attendance_status (employee_id, attendance_date, final_status, late_minutes, overtime_hours, late_deduction, shift_id, source) VALUES (?, ?, ?, ?, ?, ?, 1, ?)");
+    $stmtRequest = $pdo->prepare("INSERT INTO attendance_requests (employee_id, request_type, attendance_date, workflow_status, final_attendance_status, notes, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmtReqFinger = $pdo->prepare("INSERT INTO tidak_finger_requests (request_id, finger_type, reason) VALUES (?, ?, ?)");
+    $stmtReqLeave = $pdo->prepare("INSERT INTO leave_requests (request_id, leave_type, start_date, end_date, total_days, reason) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmtReqSick = $pdo->prepare("INSERT INTO sick_requests (request_id, provider_type, provider_name, illness_description, document_type, document_path, upload_deadline, uploaded_at) VALUES (?, 'klinik', 'Klinik Keluarga Sehat', ?, 'upload', '/uploads/documents/sick_note.png', ?, ?)");
 
-    for ($day = 1; $day <= min($daysInMonth, (int)date('d')); $day++) {
-        $date    = sprintf('%04d-%02d-%02d', $year, $month, $day);
-        $dayOfWeek = date('N', strtotime($date)); // 1=Mon, 7=Sun
-        if ($dayOfWeek >= 6) continue; // Skip weekend
+    $monthsToSeed = [5, 6, 7];
+    $fingerCount = 0;
+    $dailyCount = 0;
+    $requestCount = 0;
 
-        foreach ($employees as $idx => $_) {
-            $empId = $idx + 1;
-            // Variasi dummy: 90% hadir, 5% terlambat, 5% missing
-            $rand = rand(1, 100);
-            if ($rand <= 5) {
-                // Missing both
-                $stmtF->execute([$empId, $date, null, null, 'missing_both']);
-            } elseif ($rand <= 10) {
-                // Terlambat (08:15 - 08:45)
-                $lateMin   = rand(15, 45);
-                $timeIn    = sprintf('08:%02d:00', $lateMin);
-                $timeOut   = '17:' . sprintf('%02d', rand(0,30)) . ':00';
-                $stmtF->execute([$empId, $date, "$date $timeIn", "$date $timeOut", 'valid']);
-            } else {
-                // Hadir normal (08:00 - 08:09)
-                $minIn  = rand(0, 9);
-                $minOut = rand(0, 30);
-                $timeIn  = sprintf('08:%02d:00', $minIn);
-                $timeOut = sprintf('17:%02d:00', $minOut);
-                $stmtF->execute([$empId, $date, "$date $timeIn", "$date $timeOut", 'valid']);
+    foreach ($monthsToSeed as $m) {
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $m, $currentYear);
+        // If it is the current month, only seed up to today (current day)
+        $limitDay = ($m == (int)date('m')) ? (int)date('d') : $daysInMonth;
+
+        for ($day = 1; $day <= $limitDay; $day++) {
+            $date = sprintf('%04d-%02d-%02d', $currentYear, $m, $day);
+            $dayOfWeek = date('N', strtotime($date));
+            if ($dayOfWeek >= 6) continue; // Skip weekends
+
+            foreach ($employees as $idx => $_) {
+                $empId = $idx + 1;
+                $rand = rand(1, 100);
+
+                if ($rand <= 80) {
+                    // 1. HADIR NORMAL (80%)
+                    $minIn  = rand(0, 9);
+                    $minOut = rand(0, 30);
+                    $timeIn  = sprintf('08:%02d:00', $minIn);
+                    $timeOut = sprintf('17:%02d:00', $minOut);
+                    
+                    $stmtFinger->execute([$empId, $date, "$date $timeIn", "$date $timeOut", 'valid']);
+                    $stmtDaily->execute([$empId, $date, 'HADIR', 0, 0, 0, 'finger']);
+                    $fingerCount++;
+                    $dailyCount++;
+                } 
+                elseif ($rand <= 90) {
+                    // 2. LATE / TERLAMBAT (10%)
+                    $lateMin = rand(11, 45); // Toleransi 10 menit
+                    $timeIn  = sprintf('08:%02d:00', $lateMin);
+                    $timeOut = '17:' . sprintf('%02d', rand(0,30)) . ':00';
+                    
+                    $lateDeduction = 0;
+                    if ($lateMin > 10) {
+                        $effectiveLate = $lateMin - 10;
+                        $lateDeduction = $effectiveLate * 1500; // Rp 1500 per menit
+                    }
+                    
+                    $stmtFinger->execute([$empId, $date, "$date $timeIn", "$date $timeOut", 'valid']);
+                    $stmtDaily->execute([$empId, $date, 'HADIR', $lateMin, 0, $lateDeduction, 'finger']);
+                    $fingerCount++;
+                    $dailyCount++;
+                } 
+                elseif ($rand <= 93) {
+                    // 3. PAID LEAVE / CUTI (3%)
+                    $stmtRequest->execute([$empId, 'paid_leave', $date, 'approved', 'PAID_LEAVE', 'Cuti Tahunan Pribadi', "$date 07:00:00"]);
+                    $reqId = $pdo->lastInsertId();
+                    
+                    $stmtReqLeave->execute([$reqId, 'annual', $date, $date, 1, 'Cuti Tahunan Pribadi']);
+                    $stmtDaily->execute([$empId, $date, 'PAID_LEAVE', 0, 0, 0, 'manual']);
+                    $requestCount++;
+                    $dailyCount++;
+                } 
+                elseif ($rand <= 95) {
+                    // 4. SAKIT / SICK LEAVE (2%)
+                    $stmtRequest->execute([$empId, 'sakit', $date, 'approved', 'SAKIT', 'Demam dan flu', "$date 07:00:00"]);
+                    $reqId = $pdo->lastInsertId();
+                    
+                    $stmtReqSick->execute([$reqId, 'Sakit flu', $date, "$date 08:00:00"]);
+                    $stmtDaily->execute([$empId, $date, 'SAKIT', 0, 0, 0, 'manual']);
+                    $requestCount++;
+                    $dailyCount++;
+                } 
+                elseif ($rand <= 98) {
+                    // 5. TIDAK FINGER / NOT FINGER (3%)
+                    // Lupa scan keluar
+                    $timeIn = '08:00:00';
+                    $stmtFinger->execute([$empId, $date, "$date $timeIn", null, 'missing_out']);
+                    $fingerCount++;
+                    
+                    $stmtRequest->execute([$empId, 'tidak_finger', $date, 'approved', 'HADIR', 'Lupa finger out karena buru-buru', "$date 17:30:00"]);
+                    $reqId = $pdo->lastInsertId();
+                    
+                    $stmtReqFinger->execute([$reqId, 'out', 'Lupa scan out']);
+                    $stmtDaily->execute([$empId, $date, 'HADIR', 0, 0, 0, 'manual']);
+                    $requestCount++;
+                    $dailyCount++;
+                } 
+                else {
+                    // 6. UNPAID LEAVE TANPA KETERANGAN / ALPHA (2%)
+                    $stmtDaily->execute([$empId, $date, 'UNPAID_TANPA', 0, 0, 0, 'manual']);
+                    $dailyCount++;
+                }
             }
-            $count++;
         }
     }
-    echo "   [OK] {$count} finger log records.\n";
+    echo "   [OK] {$fingerCount} finger logs, {$dailyCount} daily attendance statuses, and {$requestCount} requests seeded.\n";
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
     echo "\n=== Seeding selesai! ===\n\n";
