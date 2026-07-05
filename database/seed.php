@@ -5,38 +5,74 @@
  * atau via CLI: php seed.php
  */
 
-$host   = 'localhost';
-$user   = 'root';
-$pass   = '';
-$dbname = 'kehadiran_app';
+require_once dirname(__DIR__) . '/config/app.php';
+
+$host   = $_ENV['DB_HOST'] ?? 'localhost';
+$user   = $_ENV['DB_USER'] ?? 'root';
+$pass   = $_ENV['DB_PASS'] ?? '';
+$dbname = $_ENV['DB_NAME'] ?? 'kehadiran_app';
 
 echo "<pre style='font-family:monospace;padding:20px;'>\n";
 echo "=== KehadiranApp Database Seeder ===\n\n";
 
 try {
-    // Koneksi tanpa database dulu (untuk CREATE DATABASE)
-    $pdo = new PDO("mysql:host={$host};charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    // Koneksi database dengan fallback untuk hosting
+    $connectedWithDb = false;
+    try {
+        // Coba koneksi tanpa database dulu (untuk local CREATE DATABASE)
+        $pdo = new PDO("mysql:host={$host};charset=utf8mb4", $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+    } catch (PDOException $e) {
+        // Fallback koneksi langsung ke database (untuk hosting yang membatasi hak akses root)
+        $pdo = new PDO("mysql:host={$host};dbname={$dbname};charset=utf8mb4", $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+        $connectedWithDb = true;
+    }
 
     // Jalankan schema part 1
     echo ">> Membuat database & tabel (Part 1)...\n";
     $sql1 = file_get_contents(__DIR__ . '/schema.sql');
+    $sql1 = str_replace('`kehadiran_app`', '`' . $dbname . '`', $sql1);
+    
     foreach (array_filter(array_map('trim', explode(';', $sql1))) as $stmt) {
-        if (!empty($stmt)) $pdo->exec($stmt);
+        if (!empty($stmt)) {
+            try {
+                $pdo->exec($stmt);
+            } catch (PDOException $ex) {
+                // Abaikan error CREATE DATABASE atau USE jika sudah terkoneksi langsung ke database hosting
+                if (stripos($stmt, 'CREATE DATABASE') !== false || stripos($stmt, 'USE ') !== false) {
+                    continue;
+                }
+                throw $ex;
+            }
+        }
     }
     echo "   [OK] Schema Part 1 selesai.\n";
 
-    // Koneksi dengan database
-    $pdo = new PDO("mysql:host={$host};dbname={$dbname};charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    // Re-koneksi dengan database apabila belum dilakukan
+    if (!$connectedWithDb) {
+        $pdo = new PDO("mysql:host={$host};dbname={$dbname};charset=utf8mb4", $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+    }
 
     // Jalankan schema part 2
     echo ">> Membuat tabel lanjutan (Part 2)...\n";
     $sql2 = file_get_contents(__DIR__ . '/schema_part2.sql');
+    $sql2 = str_replace('`kehadiran_app`', '`' . $dbname . '`', $sql2);
     foreach (array_filter(array_map('trim', explode(';', $sql2))) as $stmt) {
-        if (!empty($stmt)) $pdo->exec($stmt);
+        if (!empty($stmt)) {
+            try {
+                $pdo->exec($stmt);
+            } catch (PDOException $ex) {
+                if (stripos($stmt, 'USE ') !== false) {
+                    continue;
+                }
+                throw $ex;
+            }
+        }
     }
     echo "   [OK] Schema Part 2 selesai.\n\n";
 
