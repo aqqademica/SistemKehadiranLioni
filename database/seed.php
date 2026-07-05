@@ -232,6 +232,7 @@ try {
     $pdo->exec("DELETE FROM employee_salary_components");
     $pdo->exec("DELETE FROM employee_shifts");
     $pdo->exec("DELETE FROM employee_leave_balances");
+    $pdo->exec("DELETE FROM finger_logs");
     $pdo->exec("DELETE FROM users");
     $pdo->exec("DELETE FROM employees");
 
