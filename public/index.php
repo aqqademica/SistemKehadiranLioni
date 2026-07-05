@@ -13,6 +13,9 @@ require_once ROOT_PATH . '/core/Model.php';
 // Start session
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_samesite', 'Strict');
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    ini_set('session.cookie_secure', 1);
+}
 session_start();
 
 // Perpanjang session jika aktif
