@@ -43,6 +43,7 @@ try {
     // ========================
     // SEED DATA
     // ========================
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 0;");
 
     // Roles
     echo ">> Seeding roles...\n";
@@ -217,8 +218,8 @@ try {
 
     // Users (dengan default password bcrypt)
     echo ">> Seeding users & default credentials...\n";
-    $adminPass    = password_hash('Admin@1234',     PASSWORD_BCRYPT);
-    $employeePass = password_hash('Karyawan@1234',  PASSWORD_BCRYPT);
+    $adminPass    = password_hash('123',     PASSWORD_BCRYPT);
+    $employeePass = password_hash('123',  PASSWORD_BCRYPT);
 
     // role_id: hrd_manager=4, hrd_admin=3, payroll_officer=5, supervisor=2, employee=1
     $users = [
@@ -319,14 +320,15 @@ try {
         }
     }
     echo "   [OK] {$count} finger log records.\n";
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
     echo "\n=== Seeding selesai! ===\n\n";
     echo "Default Credentials:\n";
-    echo "  Manager HRD  : MGR001_Budi_Santoso    / Admin\@1234\n";
-    echo "  Admin HRD    : HRD001_Siti_Rahayu      / Admin\@1234\n";
-    echo "  Payroll      : PAY001_Agus_Wijaya       / Admin\@1234\n";
-    echo "  Supervisor   : SPV001_Dian_Pratama      / Admin\@1234\n";
-    echo "  Karyawan     : EMP001_Ahmad_Fauzi       / Karyawan\@1234\n";
+    echo "  Manager HRD  : MGR001_Budi_Santoso    / 123\n";
+    echo "  Admin HRD    : HRD001_Siti_Rahayu      / 123\n";
+    echo "  Payroll      : PAY001_Agus_Wijaya       / 123\n";
+    echo "  Supervisor   : SPV001_Dian_Pratama      / 123\n";
+    echo "  Karyawan     : EMP001_Ahmad_Fauzi       / 123\n";
     echo "\nAkses aplikasi: <a href='http://localhost/KehadiranApp/public/'>http://localhost/KehadiranApp/public/</a>\n";
 
 } catch (PDOException $e) {

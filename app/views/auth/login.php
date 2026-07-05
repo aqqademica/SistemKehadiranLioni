@@ -16,7 +16,7 @@
     <!-- Logo -->
     <div class="login-logo">
       <div class="logo-icon"><i class="fas fa-fingerprint"></i></div>
-      <h1>KehadiranApp</h1>
+      <h1>PT.ABC </h1>
       <p>Sistem Informasi Kehadiran &amp; Penggajian</p>
     </div>
 

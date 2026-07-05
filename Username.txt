@@ -1,0 +1,16 @@
+Username
+
+Manager:
+MGR001_Budi_Santoso
+
+HRD:
+HRD001_Siti_Rahayu
+
+Supervisor
+SPV001_Dian_Pratama
+
+Karyawan
+EMP001_Ahmad_Fauzi
+
+
+Password : 123
